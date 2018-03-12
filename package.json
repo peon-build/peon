@@ -1,0 +1,22 @@
+{
+  "name": "@peon-build/peon",
+  "version": "1.0.0",
+  "description": "Intuitive builder for javascript projects.",
+  "main": "peon.js",
+  "scripts": {
+    "start": "node peon.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "peon",
+    "build",
+    "javascript"
+  ],
+  "author": "Stanislav Hacker",
+  "license": "ISC",
+  "dependencies": {
+  },
+  "bin": {
+    "peon": "peon.js"
+  }
+}
