@@ -17,7 +17,8 @@ function promptRawList(name, message, choices) {
 		type: 'rawlist',
 		name: name,
 		message: message,
-		choices: choices
+		choices: choices,
+		pageSize: 100
 	};
 }
 
