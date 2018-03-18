@@ -93,6 +93,7 @@ program
 		let setting = fillSetting(env),
 			directory = process.cwd();
 
+		//config run from commands
 		core.commands.config(directory, setting);
 	});
 
