@@ -1,7 +1,7 @@
 const inquirer = require('inquirer');
 
-const log = /** @type {PeonBuild.Log}*/require('../log');
-const config = /** @type {PeonBuild.PeonRc.ConfigManipulator}*/require('../config/config')();
+const log = /** @type {PeonBuild.Log}*/require('../core/log');
+const core = /** @type {PeonBuild.Peon}*/require('../core')();
 
 const cancel = "Cancel";
 
@@ -69,7 +69,7 @@ function configDetails(cwd, configMap) {
  */
 function configView(cwd, configMap, answers) {
 	//stringify
-	config.stringify(configMap[answers.config])
+	core.config.stringify(configMap[answers.config])
 		.then((lines) => {
 			let i;
 
@@ -110,7 +110,7 @@ function commandConfig(cwd, setting) {
 	]);
 
 	//load data from current working dir
-	config.from(cwd)
+	core.config.from(cwd)
 		.then((configMap) => {
 			//load results
 			log.timestamp(`Loading all config files`, `Loading is done.`);

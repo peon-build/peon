@@ -2,8 +2,6 @@ const files = require('./tools/files');
 const config = require('./config/config');
 const tree = require('./tools/files.tree');
 
-const commandConfig = require('./commands/config');
-
 
 function peon() {
 	//interface
@@ -14,13 +12,7 @@ function peon() {
 		//tree manipulator
 		tree: tree,
 		//config manipulator
-		config: config(),
-
-
-		//commands
-		commands: {
-			config: commandConfig
-		}
+		config: config()
 
 	}
 }

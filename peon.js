@@ -3,8 +3,8 @@
 const pjson = require('./package.json');
 
 const program = /** @type {local.Command}*/require('commander');
-const core = /** @type {PeonBuild.Peon}*/require('./core/index')();
 const log = /** @type {PeonBuild.Log}*/require('./core/log');
+const commands = /** @type {PeonBuild.PeonCommands}*/require('./commands')();
 //const timeTracking = /** @type {PeonBuild.Log}*/require('@peon-build/peon-time-tracking')();
 
 const logLevelDefault = log.LogLevel.Info;
@@ -94,7 +94,7 @@ program
 			directory = process.cwd();
 
 		//config run from commands
-		core.commands.config(directory, setting);
+		commands.config(directory, setting);
 	});
 
 
