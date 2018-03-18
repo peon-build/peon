@@ -1,3 +1,29 @@
-{
+let peon = require('./index');
 
-}
+/**@type {PeonBuild.PeonRc.Config}*/
+module.exports = {
+
+	//props
+	//module name: if not set, get directory name
+	name: "",
+	//output
+	output: {
+
+	},
+	//vendors
+	vendors: {
+
+	},
+	//src
+	src: {
+
+	},
+	//tests
+	tests: {
+		runner: "karma",
+		framework: "jasmine"
+	},
+
+	//build steps
+	steps: []
+};

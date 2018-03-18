@@ -17,7 +17,10 @@
   "dependencies": {
     "@peon-build/peon-log": "*",
     "@peon-build/peon-time-tracking": "*",
-    "commander": "^2.15.0"
+    "commander": "^2.15.0",
+    "glob": "^7.1.2",
+    "inquirer": "^5.1.0",
+    "prettier": "^1.11.1"
   },
   "bin": {
     "peon": "peon.js"
