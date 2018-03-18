@@ -4,7 +4,7 @@
 const pjson = require('./package.json');
 
 const program = /** @type {local.Command}*/require('commander');
-const log = /** @type {PeonBuild.Log}*/require('./core/log');
+const log = /** @type {PeonBuild.Log}*/require('./log');
 const commands = /** @type {PeonBuild.PeonCommands}*/require('./commands')();
 //const timeTracking = /** @type {PeonBuild.Log}*/require('@peon-build/peon-time-tracking')();
 

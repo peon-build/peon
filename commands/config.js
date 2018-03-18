@@ -1,6 +1,6 @@
 const inquirer = require('inquirer');
 
-const log = /** @type {PeonBuild.Log}*/require('../core/log');
+const log = /** @type {PeonBuild.Log}*/require('../log');
 const core = /** @type {PeonBuild.Peon}*/require('../core')();
 
 const cancel = "Cancel";
