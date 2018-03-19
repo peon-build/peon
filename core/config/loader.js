@@ -1,9 +1,13 @@
 const promise = global.Promise;
-const glob = require('glob');
 const path = require('path');
 
+const files = require('../tools/files.js');
 const tree = require('../tools/files.tree');
 const merger = require('./merger');
+
+const errors = {
+	"CANNOT_LOAD_CONFIG_FILES": `There is problem when loading config files. Try to check enter pattern.`
+};
 
 /**
  * Loader of config
@@ -35,6 +39,8 @@ function loader(name) {
 		if (structure[name]) {
 			array.unshift(structure[name]);
 		}
+		//add self
+		all.unshift(array.slice(0));
 		//iterate paths
 		Object.keys(structure).forEach(function(key) {
 			let directory = structure[key],
@@ -142,25 +148,42 @@ function loader(name) {
 	/**
 	 * From
 	 * @param {string} where
+	 * @param {PeonBuild.PeonRc.FromSettings} settings
 	 * @return {Promise.<Map<string, PeonBuild.PeonRc.Config>>}
 	 */
-	function from(where) {
+	function from(where, settings) {
 		return new Promise(function (fulfill, reject){
-			glob(path.join(where, pattern), function (err, files) {
-				let structure,
+			let pr = /** @type {Promise}*/files(where, /** @type {PeonBuild.PeonRc.File}*/{
+				src: pattern,
+				ignorePattern: settings.ignorePattern
+			});
+
+			//fulfill or catch error
+			pr.then((toolFiles) => {
+				let file = /** @type {PeonBuild.Peon.Tools.Files}*/toolFiles[0],
+					structure,
 					array;
 
-				//no error
-				if (!err) {
-					//normalize path
-					structure = tree(where, files.map((p) => normalizePath(p)));
-					array = configOrder(structure);
-					//load
-					loadConfigs(where, array)
-						.then(fulfill)
-						.catch(reject);
+				//no files, possible error
+				if (toolFiles.length === 0) {
+					reject(new Error(errors["CANNOT_LOAD_CONFIG_FILES"], "CANNOT_LOAD_CONFIG_FILES"));
 					return;
 				}
+				//another file error
+				if (file.error) {
+					reject(file.error);
+					return;
+				}
+
+				//normalize path
+				structure = tree(where, file.source.map((p) => normalizePath(p)));
+				array = configOrder(structure);
+				//load
+				loadConfigs(where, array)
+					.then(fulfill)
+					.catch(reject);
+			});
+			pr.catch((err) => {
 				//error
 				reject(err);
 			});

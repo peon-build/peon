@@ -8,6 +8,7 @@ const prettier = require("prettier");
  */
 function stringifyObject(object) {
 	let keys = Object.keys(object),
+		evaluated,
 		string = "",
 		value,
 		key,
@@ -20,9 +21,14 @@ function stringifyObject(object) {
 		key = keys[i];
 		value = object[key];
 		//stringify anything
-		string += stringifyAnything(key, value);
-		if (i < keys.length - 1) {
-			string += ", ";
+		evaluated = stringifyAnything(key, value);
+		//is not undefined
+		if (evaluated !== undefined) {
+			//add if defined
+			string += evaluated;
+			if (i < keys.length - 1) {
+				string += ", ";
+			}
 		}
 	}
 	//end
@@ -78,11 +84,19 @@ function stringifyFunction(fn) {
  * Stringify anything
  * @param {string|null} key
  * @param {*} value
- * @return {string}
+ * @return {string|undefined}
  */
 function stringifyAnything(key, value) {
 	let keyString = key ? `${key}: ` : ``;
 
+	//not defined
+	if (value === undefined) {
+		return undefined;
+	}
+	//null
+	if (value === null) {
+		return `${keyString}null`;
+	}
 	//array
 	if (value instanceof Array) {
 		return `${keyString}${stringifyArray(value)}`;

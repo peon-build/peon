@@ -36,6 +36,7 @@ namespace PeonBuild.PeonRc {
 	type FileDef = {
 		src?: string | Array;
 		dest?: string | Array;
+		ignorePattern?: string | Array;
 	}
 
 	enum WhenType {

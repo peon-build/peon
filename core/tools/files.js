@@ -1,6 +1,7 @@
 const promise = global.Promise;
 const glob = require('glob');
 const path = require('path');
+const minimatch = require('minimatch');
 
 const errors = {
 	"INVALID_PATTERN_OR_FORMAT": `Invalid file format or pattern. You use pattern that is not compatible with blob or minimatch format.`
@@ -24,6 +25,40 @@ function loadFiles(where, pattern){
 			reject(err);
 		});
 	});
+}
+
+/**
+ * Filter ignored files
+ * @param {Array.<string>} files
+ * @param {Array.<string>} ignorePattern
+ * @return {Array.<string>}
+ */
+function filterIgnore(files, ignorePattern) {
+	let i,
+		filter;
+
+	//no ignores set
+	if (ignorePattern.length === 0) {
+		return files;
+	}
+
+	//filter all ignored files
+	for (i = 0; i < ignorePattern.length; i++) {
+		filter = ignorePatternFilter.bind(files, ignorePattern[i]);
+		files = files.filter(filter);
+	}
+
+	return files;
+}
+
+/**
+ * Ignore pattern filter
+ * @param {string} pattern
+ * @param {string} file
+ * @return {boolean}
+ */
+function ignorePatternFilter(pattern, file) {
+	return !minimatch(file, pattern, {dot: true});
 }
 
 /**
@@ -95,8 +130,8 @@ function normalizeFile(where, file, collected) {
 		promise.all(waits)
 			//ok
 			.then(() => {
+				file.source = filterIgnore(source, file.ignorePattern).map((p) => normalizePath(p));
 				file.destination = destination.map((p) => normalizePath(p));
-				file.source = source.map((p) => normalizePath(p));
 				//add
 				collected.push(file);
 				//ok
@@ -149,6 +184,7 @@ function toolFiles(dest, src) {
 	let files = /** @type {PeonBuild.Peon.Tools.Files}*/{};
 
 	//fill data
+	files.ignorePattern = [];
 	files.destination = dest;
 	files.source = src;
 	files.error = null;
@@ -231,11 +267,14 @@ function unifyArray(items) {
 function unifyObject(object) {
 	let files,
 		src = unifyProperty(object.src),
-		dest = unifyProperty(object.dest);
+		dest = unifyProperty(object.dest),
+		ignorePattern = unifyProperty(object.ignorePattern);
 
 	//create files
 	files = toolFiles(dest || [], src || []);
 
+	//set ignore
+	files.ignorePattern = ignorePattern;
 	//error state
 	if (src === null || dest === null) {
 		files.error = filesError(

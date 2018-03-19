@@ -96,11 +96,26 @@ function configView(cwd, configMap, answers) {
 }
 
 /**
+ * Config from setting
+ * @return {PeonBuild.PeonRc.FromSettings}
+ */
+function configFromSettings() {
+	//TODO: Load path from ignore files?
+	//return settings
+	return /** @type {PeonBuild.PeonRc.FromSettings}*/{
+		ignorePattern: [
+			"**/node_modules/**"
+		]
+	};
+}
+
+/**
  * Command start
  * @param {string} cwd
  * @param {PeonBuild.PeonSetting} setting
  */
 function commandConfig(cwd, setting) {
+	let fromSettings;
 
 	//set logger level
 	log.level(setting.logLevel);
@@ -110,8 +125,16 @@ function commandConfig(cwd, setting) {
 		log.p.path(cwd)
 	]);
 
+	//load settings
+	fromSettings = configFromSettings();
+
+	//report options
+	log.setting("ignorePattern", "Using this ignore pattern $1", [
+		log.p.path(/** @type {Array.<string>}*/fromSettings.ignorePattern)
+	]);
+
 	//load data from current working dir
-	core.config.from(cwd)
+	core.config.from(cwd, fromSettings)
 		.then((configMap) => {
 			//load results
 			log.timestamp(`Loading all config files`, `Loading is done.`);
