@@ -3,9 +3,6 @@ let peon = require('./index');
 /**@type {PeonBuild.PeonRc.Config}*/
 module.exports = {
 
-	//props
-	//module name: if not set, get directory name
-	name: "",
 	//output
 	output: {
 
