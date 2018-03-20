@@ -1,9 +1,13 @@
+const promise = global.Promise;
 const inquirer = require('inquirer');
 
 const log = /** @type {PeonBuild.Log}*/require('../log');
 const core = /** @type {PeonBuild.Peon}*/require('../core')();
 
 const cancel = "Cancel";
+const defaultsIgnores = [
+	"**/node_modules/**"
+];
 
 /**
  * Prompt raw list
@@ -96,43 +100,11 @@ function configView(cwd, configMap, answers) {
 }
 
 /**
- * Config from setting
- * @return {PeonBuild.PeonRc.FromSettings}
- */
-function configFromSettings() {
-	//TODO: Load path from ignore files?
-	//return settings
-	return /** @type {PeonBuild.PeonRc.FromSettings}*/{
-		ignorePattern: [
-			"**/node_modules/**"
-		]
-	};
-}
-
-/**
- * Command start
+ * Config get
  * @param {string} cwd
- * @param {PeonBuild.PeonSetting} setting
+ * @param {PeonBuild.PeonRc.FromSettings} fromSettings
  */
-function commandConfig(cwd, setting) {
-	let fromSettings;
-
-	//set logger level
-	log.level(setting.logLevel);
-	//info
-	log.title(`Config information`);
-	log.timestamp(`Loading all config files`, `Loading from directory $1.`, [
-		log.p.path(cwd)
-	]);
-
-	//load settings
-	fromSettings = configFromSettings();
-
-	//report options
-	log.setting("ignorePattern", "Using this ignore pattern $1", [
-		log.p.path(/** @type {Array.<string>}*/fromSettings.ignorePattern)
-	]);
-
+function configGet(cwd, fromSettings) {
 	//load data from current working dir
 	core.config.from(cwd, fromSettings)
 		.then((configMap) => {
@@ -149,6 +121,149 @@ function commandConfig(cwd, setting) {
 		.catch((err) => {
 			//log error
 			log.error(`An [ERROR] occurred when loading configuration files. Message from error is '${err.message}'.`);
+			log.stacktrace(err);
+		});
+}
+
+/**
+ * Flatten ignore files
+ * @param {Array.<PeonBuild.Peon.Tools.Ignore>} files
+ * @return {Array.<string>}
+ */
+function flattenIgnoreFiles(files) {
+	let array = [];
+
+	//ignore
+	files.forEach((file) => {
+		//add to array
+		array.push(...file.ignored);
+	});
+	//no files, use defaults
+	if (files.length === 0) {
+		array.push(...defaultsIgnores);
+	}
+	//banner ignore pattern
+	bannerIgnorePattern(files, array);
+	//array
+	return array;
+}
+
+/**
+ * Load from setting
+ * @param {string} where
+ * @return {Promise<PeonBuild.PeonRc.FromSettings>}
+ */
+function loadFromSettings(where) {
+	let wait = [],
+		settings = /** @type {PeonBuild.PeonRc.FromSettings}*/{};
+
+	//promise
+	return new promise(function (fulfill, reject){
+		//add
+		wait.push(loadIgnorePattern(where, settings));
+		//wait for all
+		promise.all(wait)
+			.then(() => {
+				fulfill(settings);
+			})
+			.catch((err) => {
+				reject(err);
+			});
+	});
+}
+
+/**
+ * Load ignore patterns
+ * @param {string} where
+ * @param {PeonBuild.PeonRc.FromSettings} settings
+ * @return {Promise}
+ */
+function loadIgnorePattern(where, settings) {
+	//promise
+	return new promise(function (fulfill, reject){
+		core.ignored(where, {
+				deep: true
+			})
+			.then((fls) => {
+				//ignore pattern
+				settings.ignorePattern = flattenIgnoreFiles(fls);
+				//fulfill
+				fulfill();
+			})
+			.catch((err) => {
+				reject(err);
+			});
+	});
+}
+
+//#: Banners
+
+/**
+ * Banner
+ * @param {string} cwd
+ * @param {PeonBuild.PeonSetting} setting
+ */
+function banner(cwd, setting) {
+	//set logger level
+	log.level(setting.logLevel);
+	//info
+	log.title(`Config information`);
+	log.timestamp(`Loading all config files`, `Loading from directory $1.`, [
+		log.p.path(cwd)
+	]);
+}
+
+/**
+ * Banner options
+ * @param {Array.<PeonBuild.Peon.Tools.Ignore>} files
+ * @param {Array.<string>} ignorePattern
+ */
+function bannerIgnorePattern(files, ignorePattern) {
+	//report options
+	log.setting("ignorePattern", "Using this ignore pattern with $1 patterns.", [
+		log.p.number(ignorePattern.length.toString())
+	]);
+
+	//report
+	files.forEach((file) => {
+		//log filename
+		log.filename(`Loading patterns from $1 where found $2 patterns.`, [
+			log.p.path(file.file),
+			log.p.number(file.ignored.length.toString())
+		]);
+
+		//warning
+		if (file.warning) {
+			log.warning(`There is [WARNING] from $1 file: '${file.warning.message}'.`, [
+				log.p.path(file.file)
+			]);
+		}
+		//err
+		if (file.error) {
+			//log error
+			log.error(`An [ERROR] occurred when in .ignore file. Message from error is '${file.error.message}'.`);
+			log.stacktrace(file.error);
+		}
+	});
+}
+
+/**
+ * Command start
+ * @param {string} cwd
+ * @param {PeonBuild.PeonSetting} setting
+ */
+function commandConfig(cwd, setting) {
+	//banner
+	banner(cwd, setting);
+	//load settings
+	loadFromSettings(cwd)
+		.then((fromSettings) => {
+			//config get
+			configGet(cwd, fromSettings);
+		})
+		.catch((err) => {
+			//log error
+			log.error(`An [ERROR] occurred when loading ignored files. Message from error is '${err.message}'.`);
 			log.stacktrace(err);
 		});
 }
