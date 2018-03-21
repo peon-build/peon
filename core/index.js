@@ -1,7 +1,7 @@
-const files = require('./tools/files');
-const config = require('./config/config');
-const tree = require('./tools/files.tree');
-const ignored = require('./tools/files.ignore');
+const files = require('./tools/files.js');
+const config = require('./config/config.js');
+const tree = require('./tools/files.tree.js');
+const ignored = require('./tools/files.ignore.js');
 
 
 function peon() {
@@ -11,7 +11,7 @@ function peon() {
 		//files manipulator
 		files: files,
 		ignored: ignored,
-		//tree manipulator
+		//tree file manipulator
 		tree: tree,
 		//config manipulator
 		config: config()

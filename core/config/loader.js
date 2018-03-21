@@ -95,7 +95,7 @@ function loader(name) {
 	function loadConfigs(where, array) {
 		let map = {};
 
-		return new Promise(function (fulfill, reject){
+		return new promise(function (fulfill, reject){
 			let i,
 				all = [];
 
@@ -120,12 +120,12 @@ function loader(name) {
 	 * @return {Promise}
 	 */
 	function loadConfig(map, where, array) {
-		return new Promise(function (fulfill){
+		return new promise(function (fulfill, reject){
 			let i,
-				config,
 				configPath,
 				currentPath,
-				configs = [];
+				configs = [],
+				mergerPromise;
 
 			//load all configs
 			for (i = array.length - 1; i >= 0; i--) {
@@ -137,11 +137,17 @@ function loader(name) {
 			//get config file path
 			configPath = /** @type {string}*/array[0];
 			//merge configs
-			config = merger(/** @type {string}*/array[0], configs);
-			//set config
-			map[configPath] = config;
-			//done
-			fulfill();
+			mergerPromise = /** @type {Promise}*/merger(where, configPath, configs);
+			mergerPromise
+				.then((config) => {
+					//set config
+					map[configPath] = config;
+					//done
+					fulfill();
+				})
+				.catch((err) => {
+					reject(err);
+				});
 		});
 	}
 
@@ -152,7 +158,7 @@ function loader(name) {
 	 * @return {Promise.<Map<string, PeonBuild.PeonRc.Config>>}
 	 */
 	function from(where, settings) {
-		return new Promise(function (fulfill, reject){
+		return new promise(function (fulfill, reject){
 			let pr = /** @type {Promise}*/files(where, /** @type {PeonBuild.PeonRc.File}*/{
 				src: pattern,
 				ignorePattern: settings.ignorePattern
