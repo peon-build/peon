@@ -16,3 +16,5 @@ after this text.
 ```cmd
 npm install @peon-build/peon
 ```
+
+### [API - Documentation of nodejs api](/doc/api.md)
