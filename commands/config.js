@@ -181,7 +181,7 @@ function loadFromSettings(where) {
 function loadIgnorePattern(where, settings) {
 	//promise
 	return new promise(function (fulfill, reject){
-		core.ignored(where, {
+		core.tools.ignores(where, {
 				deep: true
 			})
 			.then((fls) => {

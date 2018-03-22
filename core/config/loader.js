@@ -1,9 +1,8 @@
 const promise = global.Promise;
 const path = require('path');
 
-const files = require('../tools/files.js');
-const tree = require('../tools/files.tree');
-const merger = require('./merger');
+const tools = /** @type {PeonBuild.Peon.PeonTools}*/require('../tools/tools.js')();
+const merger = require('./merger.js');
 
 const errors = {
 	"CANNOT_LOAD_CONFIG_FILES": `There is problem when loading config files. Try to check enter pattern.`
@@ -159,7 +158,7 @@ function loader(name) {
 	 */
 	function from(where, settings) {
 		return new promise(function (fulfill, reject){
-			let pr = /** @type {Promise}*/files(where, /** @type {PeonBuild.PeonRc.File}*/{
+			let pr = /** @type {Promise}*/tools.files(where, /** @type {PeonBuild.PeonRc.File}*/{
 				src: pattern,
 				ignorePattern: settings.ignorePattern
 			});
@@ -182,7 +181,7 @@ function loader(name) {
 				}
 
 				//normalize path
-				structure = tree(where, file.source.map((p) => normalizePath(p)));
+				structure = tools.asTree(where, file.source.map((p) => normalizePath(p)));
 				array = configOrder(structure);
 				//load
 				loadConfigs(where, array)
