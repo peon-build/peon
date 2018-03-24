@@ -36,10 +36,11 @@ function loader(name) {
 
 		//has config file?
 		if (structure[name]) {
+			//add structure name
 			array.unshift(structure[name]);
+			//add self
+			all.unshift(array.slice(0));
 		}
-		//add self
-		all.unshift(array.slice(0));
 		//iterate paths
 		Object.keys(structure).forEach(function(key) {
 			let directory = structure[key],
@@ -89,7 +90,7 @@ function loader(name) {
 	 * Load configs
 	 * @param {string} where
 	 * @param {Array.<Array.<string>>} array
-	 * @return {Promise.<Map<string, PeonBuild.PeonRc.Config>>}
+	 * @return {Promise.<Map<string, PeonBuild.PeonRc.ConfigResult>>}
 	 */
 	function loadConfigs(where, array) {
 		let map = {};
@@ -116,7 +117,7 @@ function loader(name) {
 	 * @param {Map<string, PeonBuild.PeonRc.Config>} map
 	 * @param {string} where
 	 * @param {Array.<Array.<string>>} array
-	 * @return {Promise}
+	 * @return {Promise<PeonBuild.PeonRc.ConfigResult>}
 	 */
 	function loadConfig(map, where, array) {
 		return new promise(function (fulfill, reject){
@@ -138,9 +139,9 @@ function loader(name) {
 			//merge configs
 			mergerPromise = /** @type {Promise}*/merger(where, configPath, configs);
 			mergerPromise
-				.then((config) => {
+				.then((configResult) => {
 					//set config
-					map[configPath] = config;
+					map[configPath] = /** @type {PeonBuild.PeonRc.ConfigResult}*/configResult;
 					//done
 					fulfill();
 				})
@@ -154,12 +155,12 @@ function loader(name) {
 	 * From
 	 * @param {string} where
 	 * @param {PeonBuild.PeonRc.FromSettings} settings
-	 * @return {Promise.<Map<string, PeonBuild.PeonRc.Config>>}
+	 * @return {Promise.<Map<string, PeonBuild.PeonRc.ConfigResult>>}
 	 */
 	function from(where, settings) {
 		return new promise(function (fulfill, reject){
 			let pr = /** @type {Promise}*/tools.files(where, /** @type {PeonBuild.PeonRc.File}*/{
-				src: pattern,
+				src: settings.configFile || pattern,
 				ignorePattern: settings.ignorePattern
 			});
 

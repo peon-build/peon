@@ -29,7 +29,7 @@ function promptRawList(name, message, choices) {
 /**
  * Config details
  * @param {string} cwd
- * @param {Object.<string, PeonBuild.PeonRc.Config>} configMap
+ * @param {Object.<string, PeonBuild.PeonRc.ConfigResult>} configMap
  */
 function configDetails(cwd, configMap) {
 	let keys = Object.keys(configMap);
@@ -44,6 +44,15 @@ function configDetails(cwd, configMap) {
 		log.tip(`Or you can try use '$1' for create new one.`, [
 			log.p.underline("peon init")
 		]);
+		return;
+	}
+
+	//check if only one, load it
+	if (keys.length === 1) {
+		//view current config
+		configView(configMap, {
+			config: keys[0]
+		});
 		return;
 	}
 
@@ -62,34 +71,27 @@ function configDetails(cwd, configMap) {
 				return;
 			}
 			//view config
-			configView(cwd, configMap, answers);
+			configView(configMap, answers);
 		});
 }
 
 /**
  * Config view
- * @param {string} cwd
- * @param {Object.<string, PeonBuild.PeonRc.Config>} configMap
+ * @param {Object.<string, PeonBuild.PeonRc.ConfigResult>} configMap
  * @param {Object} answers
  */
-function configView(cwd, configMap, answers) {
-	//stringify
-	core.config.stringify(configMap[answers.config])
-		.then((lines) => {
-			let i;
+function configView(configMap, answers) {
+	let result = configMap[answers.config];
 
-			log.space();
-			log.title(`Configuration file '$1'.`, [
-				log.p.path(answers.config)
-			]);
-			log.setting("current working directory", "$1", [
-				log.p.path(cwd)
-			]);
-			log.space();
-			//log whole config
-			for (i = 0; i < lines.length; i++) {
-				log.code(lines[i]);
-			}
+	//stringify
+	core.config.stringify(result.config)
+		.then((lines) => {
+			//config info
+			bannerConfigInfo(answers.config);
+			//config content
+			bannerConfigContent(lines);
+			//config result
+			bannerConfigResult(result);
 		})
 		.catch((err) => {
 			//log error
@@ -151,9 +153,10 @@ function flattenIgnoreFiles(files) {
 /**
  * Load from setting
  * @param {string} where
+ * @param {PeonBuild.PeonSetting} setting
  * @return {Promise<PeonBuild.PeonRc.FromSettings>}
  */
-function loadFromSettings(where) {
+function loadFromSettings(where, setting) {
 	let wait = [],
 		settings = /** @type {PeonBuild.PeonRc.FromSettings}*/{};
 
@@ -164,6 +167,9 @@ function loadFromSettings(where) {
 		//wait for all
 		promise.all(wait)
 			.then(() => {
+				//add props
+				settings.configFile = setting.configFile;
+				//send
 				fulfill(settings);
 			})
 			.catch((err) => {
@@ -211,6 +217,16 @@ function banner(cwd, setting) {
 	log.timestamp(`Loading all config files`, `Loading from directory $1.`, [
 		log.p.path(cwd)
 	]);
+
+	log.setting("current working directory", "$1", [
+		log.p.path(cwd)
+	]);
+	//report options
+	if (setting.configFile) {
+		log.setting("configFile", "Loading $1 configuration file if exists.", [
+			log.p.path(setting.configFile)
+		]);
+	}
 }
 
 /**
@@ -248,6 +264,91 @@ function bannerIgnorePattern(files, ignorePattern) {
 }
 
 /**
+ * Banner config info
+ * @param {string} config
+ */
+function bannerConfigInfo(config) {
+	log.space();
+	log.title(`Configuration file '$1'.`, [
+		log.p.path(config)
+	]);
+}
+
+/**
+ * Banner config info
+ * @param {Array.<string>} lines
+ */
+function bannerConfigContent(lines) {
+	let i;
+
+	log.quote(true, `Configuration file content below:`);
+	log.space();
+	//log whole config
+	for (i = 0; i < lines.length; i++) {
+		log.code(lines[i]);
+	}
+	log.space();
+}
+
+/**
+ * Banner config result
+ * @param {PeonBuild.PeonRc.ConfigResult} result
+ */
+function bannerConfigResult(result) {
+
+	//warnings
+	if (result.messages && result.messages.length) {
+		log.debug("Same debug info from config file:");
+		result.messages.forEach((err, i) => {
+			log.debug(` ${i + 1}. ${err.error.message}`, err.args.map((arg) => {
+				return log.p.underline(arg)
+			}));
+			bannerTips(err.tips);
+		});
+		log.setting("sources", `$1`, [
+			log.p.path(result.sources)
+		]);
+	}
+	//warnings
+	if (result.warnings && result.warnings.length) {
+		log.warning("There are some [WARNINGS] for configuration file:");
+		result.errors.forEach((err) => {
+			log.error(`There is [WARNING] from configuration file. Message from warning is '${err.error.message}'.`, err.args.map((arg) => {
+				return log.p.underline(arg)
+			}));
+			bannerTips(err.tips);
+		});
+		log.setting("sources", `$1`, [
+			log.p.path(result.sources)
+		]);
+	}
+	//errors
+	if (result.errors && result.errors.length) {
+		log.error("There are some [ERRORS] for configuration file:");
+		result.errors.forEach((err) => {
+			log.error(`An [ERROR] occurred in config file. Message from error is '${err.error.message}'.`, err.args.map((arg) => {
+				return log.p.underline(arg)
+			}));
+			log.stacktrace(err);
+			bannerTips(err.tips);
+		});
+		log.setting("sources", `$1`, [
+			log.p.path(result.sources)
+		]);
+	}
+}
+
+/**
+ * Banner tips
+ * @param {Array.<string>} tips
+ */
+function bannerTips(tips) {
+	tips.forEach((tip) => {
+		log.tip(tip);
+	});
+}
+
+/**
  * Command start
  * @param {string} cwd
  * @param {PeonBuild.PeonSetting} setting
@@ -256,7 +357,7 @@ function commandConfig(cwd, setting) {
 	//banner
 	banner(cwd, setting);
 	//load settings
-	loadFromSettings(cwd)
+	loadFromSettings(cwd, setting)
 		.then((fromSettings) => {
 			//config get
 			configGet(cwd, fromSettings);

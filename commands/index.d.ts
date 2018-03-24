@@ -6,5 +6,6 @@ namespace PeonBuild {
 
 	type PeonSetting = {
 		logLevel?: PeonBuild.LogLogLevel;
+		configFile?: string;
 	}
 }

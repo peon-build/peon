@@ -31,7 +31,8 @@ function fillSetting(env, settings) {
 	//normalize
 	options = /** @type {Array.<local.Option>}*/env.options || [];
 	settings = settings || {
-		logLevel: logLevelDefault
+		logLevel: logLevelDefault,
+		configFile: null
 	};
 	//iterate options and try to read data
 	for (i = 0; i < options.length; i++) {
@@ -42,6 +43,10 @@ function fillSetting(env, settings) {
 		case "log-level":
 			value = env["logLevel"];
 			settings.logLevel = value || settings.logLevel;
+			break;
+		case "config-file":
+			value = env["configFile"];
+			settings.configFile = value || settings.configFile;
 			break;
 		default:
 			break;
@@ -89,6 +94,7 @@ program
 
 program
 	.command('config')
+	.option('-c, --config-file <file-path>', `Set exactly configuration file to view. Default is prompt that allowed select from found config files.`)
 	.description(`Show all information about config file.`)
 	.action((env) => {
 		let setting = fillSetting(env),
