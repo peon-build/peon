@@ -108,7 +108,7 @@ function configView(configMap, answers) {
  */
 function configGet(cwd, fromSettings) {
 	//load data from current working dir
-	core.config.from(cwd, fromSettings)
+	core.config.all(cwd, fromSettings)
 		.then((configMap) => {
 			//load results
 			log.timestamp(`Loading all config files`, `Loading is done.`);
