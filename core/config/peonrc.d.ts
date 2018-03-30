@@ -7,6 +7,7 @@ namespace PeonBuild.PeonRc {
 		output?: File;
 		vendors?: File;
 		src?: File;
+		entry?: Entry;
 
 		tests?: Tests;
 
@@ -15,14 +16,20 @@ namespace PeonBuild.PeonRc {
 		stages?: Array<Stage>;
 	}
 
+	//Tests
+
 	type Tests = {
 		runner?: string;
 		framework?: string;
 	}
 
+	//Steps
+
 	type Step = {
 
 	}
+
+	//Stages
 
 	type Stage = Array<string | StageDef>;
 
@@ -30,6 +37,17 @@ namespace PeonBuild.PeonRc {
 		name: string;
 		when?: WhenType;
 	}
+
+	//Entry
+
+    type Entry = string | EntryDef | Array<string | EntryDef>;
+
+	type EntryDef = {
+		file?: string;
+		libraryTarget?: LibraryTargetType;
+	}
+
+	//Files
 
 	type File = string | FileDef | Array<string | FileDef>;
 
@@ -39,8 +57,16 @@ namespace PeonBuild.PeonRc {
 		ignorePattern?: string | Array;
 	}
 
+	//enums
+
 	enum WhenType {
 		manual = "manual"
 	}
+
+    enum LibraryTargetType {
+        commonjs2 = "commonjs2",
+        amd = "amd",
+		umd = "umd"
+    }
 
 }

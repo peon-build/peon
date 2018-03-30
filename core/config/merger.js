@@ -135,6 +135,7 @@ function mergeConfig(configPath, files, configResult, currentConfig, last) {
 	config.tests = currentConfig.tests || config.tests;
 	config.steps = currentConfig.steps || config.steps;
 	config.stages = currentConfig.stages || config.stages;
+	config.entry = currentConfig.entry || config.entry;
 }
 
 /**

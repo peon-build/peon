@@ -21,7 +21,8 @@
     "glob": "^7.1.2",
     "inquirer": "^5.1.0",
     "minimatch": "^3.0.4",
-    "prettier": "^1.11.1"
+    "prettier": "^1.11.1",
+    "webpack": "^4.4.1"
   },
   "bin": {
     "peon": "peon.js"
