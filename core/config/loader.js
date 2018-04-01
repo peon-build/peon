@@ -3,10 +3,9 @@ const path = require('path');
 
 const tools = /** @type {PeonBuild.Peon.PeonTools}*/require('../tools/tools.js')();
 const merger = require('./merger.js');
+const validator = require('./validator.js');
 
-const errors = {
-	"CANNOT_LOAD_CONFIG_FILES": `There is problem when loading config files. Try to check enter pattern.`
-};
+const errors = require('../info/errors.js');
 
 /**
  * Loader of config
@@ -121,34 +120,51 @@ function loader(name) {
 	 */
 	function loadConfig(map, where, array) {
 		return new promise(function (fulfill, reject){
-			let i,
-				configPath,
-				currentPath,
-				configs = [],
-				mergerPromise;
+			let configPath,
+				mergerPromise,
+				validatorPromise;
 
-			//load all configs
-			for (i = array.length - 1; i >= 0; i--) {
-				//get current path
-				currentPath = path.join(where, array[i]);
-				//load and add config and path
-				configs.push(/** @type {PeonBuild.PeonRc.Config}*/require(currentPath));
-			}
 			//get config file path
 			configPath = /** @type {string}*/array[0];
 			//merge configs
-			mergerPromise = /** @type {Promise}*/merger(where, configPath, configs);
+			mergerPromise = /** @type {Promise}*/merger(where, configPath, collectConfigs(where, array));
 			mergerPromise
 				.then((configResult) => {
-					//set config
-					map[configPath] = /** @type {PeonBuild.PeonRc.ConfigResult}*/configResult;
-					//done
-					fulfill();
+					//config validator
+					validatorPromise = /** @type {Promise}*/validator(where, configPath, configResult);
+					validatorPromise
+						.then(() => {
+							//set config
+							map[configPath] = /** @type {PeonBuild.PeonRc.ConfigResult}*/configResult;
+							//done
+							fulfill();
+						})
+						.catch(reject);
 				})
-				.catch((err) => {
-					reject(err);
-				});
+				.catch(reject);
 		});
+	}
+
+	/**
+	 * Collect configs
+	 * @param {string} where
+	 * @param {Array.<Array.<string>>} array
+	 * @return {Array.<PeonBuild.PeonRc.Config>}
+	 */
+	function collectConfigs(where, array) {
+		let i,
+			currentPath,
+			configs = [];
+
+		//load all configs
+		for (i = array.length - 1; i >= 0; i--) {
+			//get current path
+			currentPath = path.join(where, array[i]);
+			//load and add config and path
+			configs.push(/** @type {PeonBuild.PeonRc.Config}*/require(currentPath));
+		}
+		//collected configs
+		return configs;
 	}
 
 	/**
@@ -172,6 +188,7 @@ function loader(name) {
 
 				//no files, possible error
 				if (toolFiles.length === 0) {
+					// noinspection JSCheckFunctionSignatures
 					reject(new Error(errors["CANNOT_LOAD_CONFIG_FILES"], "CANNOT_LOAD_CONFIG_FILES"));
 					return;
 				}

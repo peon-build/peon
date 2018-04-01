@@ -3,16 +3,8 @@ const path = require('path');
 
 const packageJson = require('./processors/package.json.js');
 
-const errors = {
-	"MULTIPLE_NAMES_POSSIBLE_FOUND": `There can be more names that are possible to use. These names are $1.`,
-	"SOURCE_FILE_NOT_EXISTS": `There is no source file $1 that can be used for data load.`
-};
-const tips = {
-	"MULTIPLE_NAMES_POSSIBLE_FOUND": [
-		`You can define name only in one module.`,
-		`Rename module in all loaded files on same name.`
-	]
-};
+const errors = require('../info/errors.js');
+const tips =  require('../info/tips.js');
 
 /**
  * For files

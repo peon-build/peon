@@ -1,9 +1,7 @@
 const toolFile = require('./as.file.tool.js');
 const fileError = require('./as.file.error.js');
 
-const errors = {
-	"INVALID_PATTERN_OR_FORMAT": `Invalid file format or pattern. You use pattern that is not compatible with blob or minimatch format.`
-};
+const errors = require('../../info/errors.js');
 
 /**
  * Unify array
