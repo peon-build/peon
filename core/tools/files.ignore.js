@@ -1,4 +1,4 @@
-const asGlob = require('./as.glob');
+const norm = /** @type {PeonBuild.Peon.Tools.Normalize} */require('./normalize/index.js')();
 
 const path = require('path');
 
@@ -31,7 +31,7 @@ function ignored(where, settings) {
 
 					//set ignore
 					result.ignored = result.ignored.map((file) => {
-						return asGlob(path.join(basename, file));
+						return norm.asGlob(path.join(basename, file));
 					});
 				});
 				//done

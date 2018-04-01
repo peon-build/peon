@@ -1,5 +1,5 @@
 const funcs = /** @type {PeonBuild.Peon.Tools.IgnoredFuncs} */require('./func')();
-const asGlob = require('../as.glob');
+const norm = /** @type {PeonBuild.Peon.Tools.Normalize} */require('../normalize/index.js')();
 
 const promise = global.Promise;
 const glob = require('glob');
@@ -116,6 +116,7 @@ function loadIgnored(file, ignored) {
 
 						//vcs not exists
 						if (!exists) {
+							// noinspection JSCheckFunctionSignatures
 							ignoredFile.warning = new Error(warnings["VCS_ROOT_NOT_EXISTS"], "VCS_ROOT_NOT_EXISTS");
 						}
 						//add ignore file def
@@ -156,7 +157,7 @@ function ignored(where, settings) {
 	let opt = loadSettings(settings);
 
 	//normalize for patterns
-	where = asGlob(where);
+	where = /** @type {string} */norm.asGlob(where);
 	//promise
 	return new promise(function (fulfill, reject){
 		loadFiles(where, opt.deep ? hgignoreGlob : hgignore)
