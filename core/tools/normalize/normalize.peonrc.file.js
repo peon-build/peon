@@ -37,9 +37,8 @@ function unifyObject(object) {
 	files.ignorePattern = ignorePattern;
 	//error state
 	if (src === null || dest === null) {
-		// noinspection JSCheckFunctionSignatures
 		files.error = fileError(
-			new Error(errors.INVALID_PATTERN_OR_FORMAT, "INVALID_PATTERN_OR_FORMAT"),
+			new Error(errors.INVALID_PATTERN_OR_FORMAT),
 			/** @type {PeonBuild.PeonRc.File}*/object
 		)
 	}
@@ -104,10 +103,9 @@ function unify(items) {
 		//4: error
 	} else {
 		files = toolFile([], []);
-		// noinspection JSCheckFunctionSignatures
 		files.error = fileError(
-			new Error(errors.INVALID_PATTERN_OR_FORMAT, "INVALID_PATTERN_OR_FORMAT"),
-			/** @type {PeonBuild.PeonRc.File}*/object
+			new Error(errors.INVALID_PATTERN_OR_FORMAT),
+			/** @type {PeonBuild.PeonRc.File}*/obj
 		);
 		unified.push(files);
 	}

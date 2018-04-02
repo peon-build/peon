@@ -1,6 +1,8 @@
 const promise = global.Promise;
 const prettier = require("prettier");
 
+const ret = "return ";
+
 /**
  * Stringify object
  * @param {object} object
@@ -133,14 +135,14 @@ function stringify(config) {
 			formatted;
 
 		try {
-			formatted = prettier.format("return " + string);
+			formatted = prettier.format(ret + string);
 		} catch (err) {
 			//error
 			reject(err);
 			return;
 		}
 		//ok
-		fulfill(formatted.split('\n'));
+		fulfill(formatted.replace(ret, "").split('\n'));
 	});
 }
 

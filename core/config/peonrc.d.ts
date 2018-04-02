@@ -11,6 +11,8 @@ namespace PeonBuild.PeonRc {
 
 		tests?: Tests;
 
+		package?: File;
+
 		steps?: Array<Step>;
 
 		stages?: Array<Stage>;

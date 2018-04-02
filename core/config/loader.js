@@ -188,8 +188,7 @@ function loader(name) {
 
 				//no files, possible error
 				if (toolFiles.length === 0) {
-					// noinspection JSCheckFunctionSignatures
-					reject(new Error(errors["CANNOT_LOAD_CONFIG_FILES"], "CANNOT_LOAD_CONFIG_FILES"));
+					reject(new Error(errors.CANNOT_LOAD_CONFIG_FILES));
 					return;
 				}
 				//another file error

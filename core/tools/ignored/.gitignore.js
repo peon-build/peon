@@ -113,8 +113,7 @@ function loadIgnored(file, ignored) {
 
 						//vcs not exists
 						if (!exists) {
-							// noinspection JSCheckFunctionSignatures
-							ignoredFile.warning = new Error(warnings["VCS_ROOT_NOT_EXISTS"], "VCS_ROOT_NOT_EXISTS");
+							ignoredFile.warning = new Error(warnings.VCS_ROOT_NOT_EXISTS);
 						}
 						//add ignore file def
 						ignored.push(ignoredFile);

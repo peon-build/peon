@@ -63,8 +63,8 @@ function evName(configPath, configResult, files) {
 	if (names.length > 1) {
 		//add message
 		configResult.messages.push(createConfigError(
-			new Error(errors["MULTIPLE_NAMES_POSSIBLE_FOUND"], "MULTIPLE_NAMES_POSSIBLE_FOUND"), [names],
-			tips["MULTIPLE_NAMES_POSSIBLE_FOUND"]
+			new Error(errors.MULTIPLE_NAMES_POSSIBLE_FOUND), [names],
+			tips.MULTIPLE_NAMES_POSSIBLE_FOUND
 		));
 	}
 	//add from folder name
@@ -93,7 +93,7 @@ function fillData(externalFile, configResult) {
 	case "ENOENT":
 		//add message
 		configResult.messages.push(createConfigError(
-			new Error(errors["SOURCE_FILE_NOT_EXISTS"], "SOURCE_FILE_NOT_EXISTS"), [externalFile.file]
+			new Error(errors.SOURCE_FILE_NOT_EXISTS), [externalFile.file]
 		));
 		break;
 	default:
@@ -128,6 +128,7 @@ function mergeConfig(configPath, files, configResult, currentConfig, last) {
 	config.steps = currentConfig.steps || config.steps;
 	config.stages = currentConfig.stages || config.stages;
 	config.entry = currentConfig.entry || config.entry;
+	config.package = currentConfig.package || config.package;
 }
 
 /**
@@ -146,7 +147,7 @@ function mergeConfigs(files, configPath, configs) {
 		configResult = /** @type {PeonBuild.PeonRc.ConfigResult}*/{
 			config: /** @type {PeonBuild.PeonRc.Config}*/{},
 			sources: [],
-			error: [],
+			errors: [],
 			warnings: [],
 			messages: []
 		};

@@ -329,7 +329,7 @@ function bannerConfigResult(result) {
 			log.error(`An [ERROR] occurred in config file. Message from error is '${err.error.message}'.`, err.args.map((arg) => {
 				return log.p.underline(arg)
 			}));
-			log.stacktrace(err);
+			log.stacktrace(err.error);
 			bannerTips(err.tips);
 		});
 		log.setting("sources", `$1`, [
