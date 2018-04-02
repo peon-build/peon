@@ -4,17 +4,22 @@ let peon = require('./index');
 module.exports = {
 
 	//output
-	output: {
-
-	},
+	output: "./build/",
+	//package
+	package: [
+		"./*.md",
+		"./package.json",
+		"./peon.cmd"
+	],
 	//vendors
-	vendors: {
-
-	},
+	vendors: [],
 	//src
-	src: {
-
-	},
+	src: null,
+	//entry
+	entry: [
+		"index.js",
+		"peon.js",
+	],
 	//tests
 	tests: {
 		runner: "karma",
