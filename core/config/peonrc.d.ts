@@ -42,7 +42,7 @@ namespace PeonBuild.PeonRc {
 
 	//Entry
 
-    type Entry = string | EntryDef | Array<string | EntryDef>;
+	type Entry = string | EntryDef | Array<string | EntryDef>;
 
 	type EntryDef = {
 		file?: string;
@@ -65,10 +65,10 @@ namespace PeonBuild.PeonRc {
 		manual = "manual"
 	}
 
-    enum LibraryTargetType {
-        commonjs2 = "commonjs2",
-        amd = "amd",
+	enum LibraryTargetType {
+		commonjs2 = "commonjs2",
+		amd = "amd",
 		umd = "umd"
-    }
+	}
 
 }
