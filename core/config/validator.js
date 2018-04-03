@@ -5,12 +5,21 @@ const tips = require('../info/tips.js');
 const stringify = require('./stringify.js');
 
 /**
- * Normalize
+ * Normalize file
  * @param {PeonBuild.PeonRc.File} file
  * @return {Array<PeonBuild.Peon.Tools.Files>}
  */
-function normalize(file) {
+function normalizeFile(file) {
 	return  /** @type {Array.<PeonBuild.Peon.Tools.Files>}*/norm.normalizePeonRcFile(file);
+}
+
+/**
+ * Normalize entry
+ * @param {PeonBuild.PeonRc.Entry} entry
+ * @return {Array<PeonBuild.Peon.Tools.Entry>}
+ */
+function normalizeEntry(entry) {
+	return  /** @type {Array.<PeonBuild.Peon.Tools.Entry>}*/norm.normalizePeonRcEntry(entry);
 }
 
 /**
@@ -31,13 +40,13 @@ function createConfigError(err, args, tips) {
 }
 
 /**
- * Add result error
+ * Add file error
  * @param {PeonBuild.PeonRc.ConfigResult} configResult
  * @param {PeonBuild.Peon.Tools.Files} file
  * @param {string} prop
  * @return {Promise}
  */
-function addResultError(configResult, file, prop) {
+function addFileError(configResult, file, prop) {
 	return new promise(function (fulfill, reject) {
 		let stringifyPromise,
 			error = /** @type {PeonBuild.Peon.Tools.FilesError}*/file.error;
@@ -47,15 +56,7 @@ function addResultError(configResult, file, prop) {
 			stringifyPromise = /** @type {Promise}*/stringify(error.original);
 			stringifyPromise
 				.then((lines) => {
-					//push error
-					configResult.errors.push(createConfigError(
-						error.error,
-						[],
-						[
-							`Pattern that is invalid in '${prop}': ${lines.join(" ")}`
-						]
-					));
-					//ok
+					addConfigError(configResult, error.error, prop, lines);
 					fulfill();
 				})
 				.catch(reject);
@@ -64,6 +65,52 @@ function addResultError(configResult, file, prop) {
 		//ok
 		fulfill();
 	});
+}
+
+/**
+ * Add entry error
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ * @param {PeonBuild.Peon.Tools.Entry} entry
+ * @param {string} prop
+ * @return {Promise}
+ */
+function addEntryError(configResult, entry, prop) {
+	return new promise(function (fulfill, reject) {
+		let stringifyPromise,
+			error = /** @type {PeonBuild.Peon.Tools.EntryError}*/entry.error;
+
+		//add entry error
+		if (error) {
+			stringifyPromise = /** @type {Promise}*/stringify(error.original);
+			stringifyPromise
+				.then((lines) => {
+					addConfigError(configResult, error.error, prop, lines);
+					fulfill();
+				})
+				.catch(reject);
+			return;
+		}
+		//ok
+		fulfill();
+	});
+}
+
+/**
+ * Add config error
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ * @param {Error} error
+ * @param {string} prop
+ * @param {Array.<string>} lines
+ */
+function addConfigError(configResult, error, prop, lines) {
+	//push error
+	configResult.errors.push(createConfigError(
+		error,
+		[],
+		[
+			`Pattern that is invalid in '${prop}': ${lines.join(" ")}`
+		]
+	));
 }
 
 /**
@@ -81,10 +128,10 @@ function validateVendors(configResult) {
 			return;
 		}
 
-		let files = normalize(config.vendors);
+		let files = normalizeFile(config.vendors);
 
 		files.forEach((file) => {
-			errors.push(addResultError(configResult, file, "vendors"));
+			errors.push(addFileError(configResult, file, "vendors"));
 		});
 
 		promise.all(errors)
@@ -108,10 +155,10 @@ function validateSrc(configResult) {
 			return;
 		}
 
-		let files = normalize(config.src);
+		let files = normalizeFile(config.src);
 
 		files.forEach((file) => {
-			errors.push(addResultError(configResult, file, "src"));
+			errors.push(addFileError(configResult, file, "src"));
 		});
 
 		promise.all(errors)
@@ -135,10 +182,10 @@ function validatePackage(configResult) {
 			return;
 		}
 
-		let files = normalize(config.package);
+		let files = normalizeFile(config.package);
 
 		files.forEach((file) => {
-			errors.push(addResultError(configResult, file, "package"));
+			errors.push(addFileError(configResult, file, "package"));
 		});
 
 		promise.all(errors)
@@ -164,7 +211,7 @@ function validateOutput(configResult) {
 			return;
 		}
 
-		let files = normalize(config.output);
+		let files = normalizeFile(config.output);
 
 		if (files.length === 0) {
 			configResult.errors.push(createConfigError(
@@ -183,7 +230,34 @@ function validateOutput(configResult) {
 		}
 
 		//add file error
-		addResultError(configResult, files[0], "output")
+		addFileError(configResult, files[0], "output")
+			.then(fulfill)
+			.catch(reject);
+	});
+}
+
+/**
+ * Validate entry
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ * @return {Promise}
+ */
+function validateEntry(configResult) {
+	return new promise(function (fulfill, reject) {
+		let config = configResult.config,
+			errors = [];
+
+		if (!config.entry) {
+			fulfill();
+			return;
+		}
+
+		let entries = normalizeEntry(config.entry);
+
+		entries.forEach((file) => {
+			errors.push(addEntryError(configResult, file, "entry"));
+		});
+
+		promise.all(errors)
 			.then(fulfill)
 			.catch(reject);
 	});
@@ -198,11 +272,21 @@ function validateCombination(configResult) {
 	return new promise(function (fulfill) {
 		let config = configResult.config;
 
+		//both specified, invalid state
 		if (config.src && config.entry) {
 			configResult.errors.push(createConfigError(
 				new Error(errors.SOURCES_CLASH),
 				[],
 				tips.SOURCES_CLASH
+			));
+		}
+
+		//nothing specified, invalid state
+		if (!config.src && !config.entry) {
+			configResult.errors.push(createConfigError(
+				new Error(errors.NO_SOURCES_SPECIFIED),
+				[],
+				tips.NO_SOURCES_SPECIFIED
 			));
 		}
 
@@ -223,6 +307,7 @@ function validator(where, configPath, configResult) {
 
 		validators.push(validateVendors(configResult));
 		validators.push(validateOutput(configResult));
+		validators.push(validateEntry(configResult));
 		validators.push(validateSrc(configResult));
 		validators.push(validatePackage(configResult));
 

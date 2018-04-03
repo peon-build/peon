@@ -20,6 +20,16 @@ namespace PeonBuild.Peon {
 			original?: PeonBuild.PeonRc.File;
 		}
 
+		type Entry = {
+			file?: string;
+			error?: EntryError;
+		}
+
+		type EntryError = {
+			error?: Error;
+			original?: PeonBuild.PeonRc.Entry;
+		}
+
 		type Ignore = {
 			file: string;
 			ignored: Array;

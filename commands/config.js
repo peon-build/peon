@@ -295,8 +295,9 @@ function bannerConfigContent(lines) {
  * @param {PeonBuild.PeonRc.ConfigResult} result
  */
 function bannerConfigResult(result) {
+	let valid = true;
 
-	//warnings
+	//messages
 	if (result.messages && result.messages.length) {
 		log.debug("Same debug info from config file:");
 		result.messages.forEach((err, i) => {
@@ -321,6 +322,8 @@ function bannerConfigResult(result) {
 		log.setting("sources", `$1`, [
 			log.p.path(result.sources)
 		]);
+		//invalidate
+		valid = false;
 	}
 	//errors
 	if (result.errors && result.errors.length) {
@@ -335,7 +338,13 @@ function bannerConfigResult(result) {
 		log.setting("sources", `$1`, [
 			log.p.path(result.sources)
 		]);
+		//invalidate
+		valid = false;
 	}
+
+	//info
+	log.space();
+	log.assert(valid, "Config file is valid and ready for build!");
 }
 
 /**
