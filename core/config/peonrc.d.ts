@@ -13,6 +13,8 @@ namespace PeonBuild.PeonRc {
 
 		package?: File;
 
+		dependencies?: Array<Dependency>;
+
 		steps?: Array<Step>;
 
 		stages?: Array<Stage>;
@@ -23,6 +25,13 @@ namespace PeonBuild.PeonRc {
 	type Tests = {
 		runner?: string;
 		framework?: string;
+	}
+
+	//Dependencies
+
+	type Dependency = {
+		module: string;
+		version: string;
 	}
 
 	//Steps

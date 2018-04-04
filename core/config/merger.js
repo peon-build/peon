@@ -77,6 +77,29 @@ function evName(configPath, configResult, files) {
 }
 
 /**
+ * Evaluate dependencies
+ * @param {string} configPath
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ * @param {Object.<string, PeonBuild.PeonRc.ExternalFile>} files
+ * @param {Array.<PeonBuild.PeonRc.Dependency>} currentDependencies
+ * @return {Array.<PeonBuild.PeonRc.Dependency>}
+ */
+function evDependencies(configPath, configResult, files, currentDependencies) {
+	let dependencies = [];
+
+	//add current
+	dependencies.push(...currentDependencies);
+	//iterate all names
+	forFiles(files, (name, externalFile) => {
+		if (externalFile.dependencies) {
+			dependencies.push(...externalFile.dependencies);
+		}
+	});
+	//return dep
+	return dependencies;
+}
+
+/**
  * Fill data
  * @param {PeonBuild.PeonRc.ExternalFile} externalFile
  * @param {PeonBuild.PeonRc.ConfigResult} configResult
@@ -115,11 +138,6 @@ function fillData(externalFile, configResult) {
 function mergeConfig(configPath, files, configResult, currentConfig, last) {
 	let config = configResult.config;
 
-	//do only for last config
-	if (last) {
-		//set name
-		config.name = currentConfig.name || evName(configPath, configResult, files);
-	}
 	//for each config
 	config.output = currentConfig.output || config.output;
 	config.vendors = currentConfig.vendors || config.vendors;
@@ -129,6 +147,15 @@ function mergeConfig(configPath, files, configResult, currentConfig, last) {
 	config.stages = currentConfig.stages || config.stages;
 	config.entry = currentConfig.entry || config.entry;
 	config.package = currentConfig.package || config.package;
+	config.dependencies = currentConfig.dependencies || config.dependencies;
+
+	//do only for last config
+	if (last) {
+		//set name
+		config.name = currentConfig.name || evName(configPath, configResult, files);
+		//dependencies
+		config.dependencies = evDependencies(configPath, configResult, files, currentConfig.dependencies || []);
+	}
 }
 
 /**
