@@ -2,7 +2,7 @@ namespace PeonBuild {
 
 	type PeonCommands = {
 		config(cwd: string, setting: PeonSetting);
-		build(cwd: string, setting: PeonSetting);
+		run(cwd: string, setting: PeonSetting);
 	}
 
 	type PeonSetting = {

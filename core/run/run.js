@@ -1,5 +1,5 @@
 
-function buildPeonRc() {
+function runPeonRc() {
 	//interface
 	return {
 
@@ -9,11 +9,11 @@ function buildPeonRc() {
 		 *
 		 * @return {Promise<>}
 		 */
-		run() {
+		start() {
 
 		}
 
 	}
 }
 //export
-module.exports = buildPeonRc;
+module.exports = runPeonRc;

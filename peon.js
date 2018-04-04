@@ -79,16 +79,16 @@ program
 	});
 
 program
-	.command('build [module]')
-	.description(`Build modules or module to desired output path and include all available assets.`)
+	.command('run [module]')
+	.description(`Run build runtime with all stages for all modules or single module to desired output path and include all available assets.`)
 	.action((module, env) => {
 		let setting = fillSetting(env),
 			directory = process.cwd();
 
 		//set module
 		setting.module = module;
-		//config run from commands
-		commands.build(directory, setting);
+		//run from commands
+		commands.run(directory, setting);
 	});
 
 program

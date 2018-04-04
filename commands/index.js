@@ -1,12 +1,12 @@
 const commandConfig = require('./config');
-const commandBuild = require('./build');
+const commandRun = require('./run');
 
 
 function commands() {
 	//interface
 	return {
 		config: commandConfig,
-		build: commandBuild
+		run: commandRun
 	}
 }
 //export

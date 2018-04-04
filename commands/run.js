@@ -33,9 +33,15 @@ function loadConfigsAndValidate(configResults) {
 
 	//as array
 	Object.keys(configResults).forEach(function(key) {
-		configs.push(configResults[key]);
+		let configResult = configResults[key];
+
+		//add valid config into list
+		if (configResult.errors.length === 0) {
+			configs.push(configResult);
+		}
+		//banner configs
 		bannerConfigInfo(key);
-		bannerConfigResult(key, configResults[key]);
+		bannerConfigResult(key, configResult);
 	});
 
 	return configs;
@@ -53,7 +59,7 @@ function loadConfigFile(cwd, config, fromSettings) {
 		.then((configResults) => {
 			let configs = loadConfigsAndValidate(configResults);
 
-			//TODO: Build
+			//TODO: run
 		})
 		.catch((err) => {
 			//log error
@@ -73,7 +79,7 @@ function loadConfigFiles(cwd, fromSettings) {
 		.then((configResults) => {
 			let configs = loadConfigsAndValidate(configResults);
 
-			//TODO: Build
+			//TODO: run
 		})
 		.catch((err) => {
 			//log error
@@ -84,17 +90,55 @@ function loadConfigFiles(cwd, fromSettings) {
 
 //#: Banners
 
+/**
+ * Banner
+ * @param {string} cwd
+ * @param {PeonBuild.PeonSetting} setting
+ * @param {string|null} config
+ */
+function banner(cwd, setting, config) {
+	//set logger level
+	log.level(setting.logLevel);
+	//info
+	log.title(`Run information`);
+
+	//check config
+	if (config) {
+		log.timestamp(`Run runtime`, `Running runtime for $1 module with configuration file $2 in $3.`, [
+			log.p.underline(setting.module),
+			log.p.path(config),
+			log.p.path(cwd)
+		]);
+	} else {
+		log.timestamp(`Run runtime`, `Running runtime for all modules in $1.`, [
+			log.p.path(cwd)
+		]);
+	}
+
+	log.setting("current working directory", "$1", [
+		log.p.path(cwd)
+	]);
+	//report options
+	if (setting.module) {
+		log.setting("module", "$2", [
+			log.p.underline(setting.module)
+		]);
+	}
+}
+
 //#: Command
 
 /**
- * Command build
+ * Command run
  * @param {string} cwd
  * @param {PeonBuild.PeonSetting} setting
  */
-function commandBuild(cwd, setting) {
+function commandRun(cwd, setting) {
 	let fromSettingsPromise,
 		config = getConfig(setting);
 
+	//banner
+	banner(cwd, setting, config);
 	//load settings
 	fromSettingsPromise = /** @type {Promise<PeonBuild.PeonRc.FromSettings>}*/loadFromSettings(cwd, setting);
 	fromSettingsPromise
@@ -116,4 +160,4 @@ function commandBuild(cwd, setting) {
 
 }
 //export
-module.exports = commandBuild;
+module.exports = commandRun;
