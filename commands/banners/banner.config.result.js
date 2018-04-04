@@ -60,6 +60,7 @@ function bannerConfigResult(config, result) {
 	log.assert(valid, "Config file $1 is valid and ready for build!", [
 		log.p.path(config)
 	]);
+	log.space();
 }
 
 //export

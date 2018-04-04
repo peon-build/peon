@@ -7,7 +7,7 @@ const log = /** @type {PeonBuild.Log}*/require('../../log');
  */
 function bannerIgnorePattern(files, ignorePattern) {
 	//report options
-	log.setting("ignorePattern", "Using this ignore pattern with $1 patterns.", [
+	log.setting("ignorePattern", "Using ignore pattern with $1 patterns.", [
 		log.p.number(ignorePattern.length.toString())
 	]);
 
