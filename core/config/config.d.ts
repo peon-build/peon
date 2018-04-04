@@ -3,8 +3,8 @@ namespace PeonBuild.PeonRc {
 	type ConfigManipulator = {
 		name: string;
 		stringify(config: Object): Promise<Array<string>>;
-		all(where: string, settings: FromSettings): Promise<Map<string, PeonBuild.PeonRc.Config>>;
-		one(where: string, config: string, settings: FromSettings): Promise<Map<string, PeonBuild.PeonRc.Config>>;
+		all(where: string, settings: FromSettings): Promise<Map<string, PeonBuild.PeonRc.ConfigResult>>;
+		one(where: string, config: string, settings: FromSettings): Promise<Map<string, PeonBuild.PeonRc.ConfigResult>>;
 	}
 
 	type FromSettings = {

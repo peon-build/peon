@@ -1,5 +1,6 @@
 const tools = require('./tools/tools.js');
 const config = require('./config/config.js');
+const build = require('./build/build.js');
 const errors = require('./info/errors.js');
 const tips = require('./info/tips.js');
 
@@ -16,8 +17,9 @@ function peon() {
 		//tools
 		tools: tools(),
 		//config manipulator
-		config: config()
-
+		config: config(),
+		//build manipulator
+		build: build()
 	}
 }
 //export

@@ -4,6 +4,9 @@ const log = /** @type {PeonBuild.Log}*/require('../log');
 const core = /** @type {PeonBuild.Peon}*/require('../index')();
 const loadFromSettings = require('./utils/setting.from.js');
 
+const bannerConfigResult = require('./banners/banner.config.result.js');
+const bannerConfigInfo = require('./banners/banner.config.info.js');
+
 const cancel = "Cancel";
 
 /**
@@ -88,7 +91,7 @@ function configView(configMap, answers) {
 			//config content
 			bannerConfigContent(lines);
 			//config result
-			bannerConfigResult(result);
+			bannerConfigResult(answers.config, result);
 		})
 		.catch((err) => {
 			//log error
@@ -153,17 +156,6 @@ function banner(cwd, setting) {
 
 /**
  * Banner config info
- * @param {string} config
- */
-function bannerConfigInfo(config) {
-	log.space();
-	log.title(`Configuration file '$1'.`, [
-		log.p.path(config)
-	]);
-}
-
-/**
- * Banner config info
  * @param {Array.<string>} lines
  */
 function bannerConfigContent(lines) {
@@ -178,72 +170,7 @@ function bannerConfigContent(lines) {
 	log.space();
 }
 
-/**
- * Banner config result
- * @param {PeonBuild.PeonRc.ConfigResult} result
- */
-function bannerConfigResult(result) {
-	let valid = true;
-
-	//messages
-	if (result.messages && result.messages.length) {
-		log.debug("Same debug info from config file:");
-		result.messages.forEach((err, i) => {
-			log.debug(` ${i + 1}. ${err.error.message}`, err.args.map((arg) => {
-				return log.p.underline(arg)
-			}));
-			bannerTips(err.tips);
-		});
-		log.setting("sources", `$1`, [
-			log.p.path(result.sources)
-		]);
-	}
-	//warnings
-	if (result.warnings && result.warnings.length) {
-		log.warning("There are some [WARNINGS] for configuration file:");
-		result.errors.forEach((err) => {
-			log.error(`There is [WARNING] from configuration file. Message from warning is '${err.error.message}'.`, err.args.map((arg) => {
-				return log.p.underline(arg)
-			}));
-			bannerTips(err.tips);
-		});
-		log.setting("sources", `$1`, [
-			log.p.path(result.sources)
-		]);
-		//invalidate
-		valid = false;
-	}
-	//errors
-	if (result.errors && result.errors.length) {
-		log.error("There are some [ERRORS] for configuration file:");
-		result.errors.forEach((err) => {
-			log.error(`An [ERROR] occurred in config file. Message from error is '${err.error.message}'.`, err.args.map((arg) => {
-				return log.p.underline(arg)
-			}));
-			log.stacktrace(err.error);
-			bannerTips(err.tips);
-		});
-		log.setting("sources", `$1`, [
-			log.p.path(result.sources)
-		]);
-		//invalidate
-		valid = false;
-	}
-
-	//info
-	log.space();
-	log.assert(valid, "Config file is valid and ready for build!");
-}
-
-/**
- * Banner tips
- * @param {Array.<string>} tips
- */
-function bannerTips(tips) {
-	tips.forEach((tip) => {
-		log.tip(tip);
-	});
-}
+//#: Command
 
 /**
  * Command start

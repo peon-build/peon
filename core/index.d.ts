@@ -4,6 +4,7 @@ namespace PeonBuild {
 		info: PeonInfoData,
 		tools: PeonBuild.Peon.PeonTools;
 		config: PeonBuild.PeonRc.ConfigManipulator;
+		build: PeonBuild.PeonRc.BuildManipulator;
 	}
 
 	type PeonInfoData = {
