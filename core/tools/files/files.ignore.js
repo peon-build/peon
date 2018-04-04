@@ -1,10 +1,10 @@
-const norm = /** @type {PeonBuild.Peon.Tools.Normalize} */require('./normalize/index.js')();
+const norm = /** @type {PeonBuild.Peon.Tools.Normalize} */require('../normalize/index.js')();
 
 const path = require('path');
 
 const promise = global.Promise;
-const gitignore = require('./ignored/.gitignore');
-const hgignore = require('./ignored/.hgignore');
+const gitignore = require('../ignored/.gitignore');
+const hgignore = require('../ignored/.hgignore');
 
 /**
  * @param {string} where

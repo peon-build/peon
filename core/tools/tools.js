@@ -1,6 +1,6 @@
-const files = require('./files.search.js');
-const tree = require('./files.tree.js');
-const ignore = require('./files.ignore.js');
+const files = require('./files/files.search.js');
+const tree = require('./files/files.tree.js');
+const ignore = require('./files/files.ignore.js');
 
 
 function peonTools() {

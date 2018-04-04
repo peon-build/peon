@@ -3,7 +3,7 @@ const glob = require('glob');
 const path = require('path');
 const minimatch = require('minimatch');
 
-const norm = /** @type {PeonBuild.Peon.Tools.Normalize} */require('./normalize/index.js')();
+const norm = /** @type {PeonBuild.Peon.Tools.Normalize} */require('../normalize/index.js')();
 
 /**
  * Load files
