@@ -264,6 +264,47 @@ function validateEntry(configResult) {
 }
 
 /**
+ * Validate dependencies
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ * @return {Promise}
+ */
+function validateDependencies(configResult) {
+	return new promise(function (fulfill) {
+		let config = configResult.config,
+			map = {};
+
+		if (!config.dependencies) {
+			fulfill();
+			return;
+		}
+
+		config.dependencies.forEach((dependency) => {
+			let versions = map[dependency.module] || [];
+
+			if (versions.indexOf(dependency.version) === -1) {
+				versions.push(dependency.version);
+			}
+			map[dependency.module] = versions;
+		});
+
+		Object.keys(map).forEach((key) => {
+			if (map[key].length > 1) {
+				configResult.errors.push(createConfigError(
+					new Error(errors.MORE_VERSIONS_OF_LIBRARY),
+					[
+						key,
+						map[key]
+					],
+					tips.MORE_VERSIONS_OF_LIBRARY
+				));
+			}
+		});
+
+		fulfill();
+	});
+}
+
+/**
  * Validate combination
  * @param {PeonBuild.PeonRc.ConfigResult} configResult
  * @return {Promise}
@@ -310,6 +351,7 @@ function validator(where, configPath, configResult) {
 		validators.push(validateEntry(configResult));
 		validators.push(validateSrc(configResult));
 		validators.push(validatePackage(configResult));
+		validators.push(validateDependencies(configResult));
 
 		validators.push(validateCombination(configResult));
 

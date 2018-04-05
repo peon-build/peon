@@ -8,6 +8,10 @@ const tips = {
 	],
 	"NO_SOURCES_SPECIFIED": [
 		`Specify one type of sources. 'src' is for old way concat style building, 'entry' is for import like project style.`
+	],
+	"MORE_VERSIONS_OF_LIBRARY": [
+		`Check all your configuration files and find this library and unify version.`,
+		`Keep dependencies on same module only in one file.`
 	]
 };
 

@@ -6,7 +6,8 @@ const errors = {
 	"NO_OUTPUT_SPECIFIED": `There is no 'output' property. You must specify output for your module!`,
 	"NO_SOURCES_SPECIFIED": `There is no 'src' or 'entry' property. You must specify sources for your module!`,
 	"MULTIPLE_OUTPUT_FILES_SPECIFIED": `There are multiple files specified as output. This is not possible.`,
-	"SOURCES_CLASH": `There is source file clash. You specified 'output' and 'src' property.`
+	"SOURCES_CLASH": `There is source file clash. You specified 'output' and 'src' property.`,
+	"MORE_VERSIONS_OF_LIBRARY": `There are more versions for library $1. These versions are $2.`
 };
 
 module.exports = errors;
