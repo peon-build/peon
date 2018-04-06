@@ -155,7 +155,15 @@ function validateSrc(configResult) {
 			return;
 		}
 
-		let files = normalizeFile(config.src);
+		if (!config.src.files) {
+			configResult.errors.push(createConfigError(
+				new Error(errors.SOURCE_EXISTS_BUT_NO_FILES_PROVIDED)
+			));
+			fulfill();
+			return;
+		}
+
+		let files = normalizeFile(config.src.files);
 
 		files.forEach((file) => {
 			errors.push(addFileError(configResult, file, "src"));

@@ -6,17 +6,15 @@ namespace PeonBuild.PeonRc {
 
 		output?: File;
 		vendors?: File;
-		src?: File;
+		package?: File;
+
+		src?: Sources;
 		entry?: Entry;
 
 		tests?: Tests;
 
-		package?: File;
-
 		dependencies?: Array<Dependency>;
-
 		steps?: Array<Step>;
-
 		stages?: Array<Stage>;
 	}
 
@@ -25,6 +23,13 @@ namespace PeonBuild.PeonRc {
 	type Tests = {
 		runner?: string;
 		framework?: string;
+	}
+
+	//Sources
+
+	type Sources = {
+		files?: File;
+		libraryTarget?: LibraryTargetType;
 	}
 
 	//Dependencies
