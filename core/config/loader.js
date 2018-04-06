@@ -168,6 +168,62 @@ function loader(name) {
 	}
 
 	/**
+	 * Collect single configs paths
+	 * @param {string} configFile
+	 * @return {Array.<string>}
+	 */
+	function collectConfigPaths(configFile) {
+		let dir,
+			currentDir,
+			files = [],
+			parentConfigPath;
+
+		//no config file
+		if (!configFile) {
+			return null;
+		}
+
+		//add self
+		files.push(configFile);
+		//iterate directories
+		currentDir = path.dirname(configFile);
+		dir = path.dirname(currentDir);
+		do {
+			//parentConfigPath
+			parentConfigPath = path.join(dir, name);
+			//add
+			if (files.indexOf(parentConfigPath) === -1) {
+				files.push(parentConfigPath);
+			}
+			//parent
+			dir = path.dirname(dir);
+
+		} while (dir !== ".");
+
+		return files;
+	}
+
+	/**
+	 * Specify config paths
+	 * @param {PeonBuild.PeonRc.FromSettings} settings
+	 * @param {Array.<Array.<string>>} array
+	 * @return {Array.<Array.<string>>}
+	 */
+	function specifyConfigPaths(settings, array) {
+		let configFile;
+
+		//get only array wit needed config file
+		if (settings.configFile) {
+			configFile = path.normalize(settings.configFile);
+			return array.filter((item) => {
+				return item[0] === configFile;
+			});
+		}
+		//self
+		return array;
+	}
+
+	/**
 	 * From
 	 * @param {string} where
 	 * @param {PeonBuild.PeonRc.FromSettings} settings
@@ -175,8 +231,11 @@ function loader(name) {
 	 */
 	function from(where, settings) {
 		return new promise(function (fulfill, reject){
-			let pr = /** @type {Promise}*/tools.files(where, /** @type {PeonBuild.PeonRc.File}*/{
-				src: settings.configFile || pattern,
+			let pr;
+
+			//load files
+			pr = /** @type {Promise}*/tools.files(where, /** @type {PeonBuild.PeonRc.File}*/{
+				src: collectConfigPaths(settings.configFile) || pattern,
 				ignorePattern: settings.ignorePattern
 			});
 
@@ -200,6 +259,7 @@ function loader(name) {
 				//normalize path
 				structure = tools.asTree(where, file.source.map((p) => normalizePath(p)));
 				array = configOrder(structure);
+				array = specifyConfigPaths(settings, array);
 				//load
 				loadConfigs(where, array)
 					.then(fulfill)

@@ -12,6 +12,9 @@ const tips = {
 	"MORE_VERSIONS_OF_LIBRARY": [
 		`Check all your configuration files and find this library and unify version.`,
 		`Keep dependencies on same module only in one file.`
+	],
+	"NO_STAGES": [
+		`If there is no stages, Peon is basically not work. Define stages to successful run build. You can use default stages names.`
 	]
 };
 

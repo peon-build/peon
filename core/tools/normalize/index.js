@@ -1,6 +1,8 @@
 const asGlob = require('./as.glob.js');
 const normalizePeonRcFile = require('./normalize.peonrc.file.js');
 const normalizePeonRcEntry = require('./normalize.peonrc.entry.js');
+const normalizePeonRcStages = require('./normalize.peonrc.stages.js');
+const normalizePeonRcSteps = require('./normalize.peonrc.steps.js');
 const toolFile = require('./as.file.tool.js');
 const fileError = require('./as.file.error.js');
 
@@ -16,7 +18,11 @@ function normalize() {
 		//normalizePeonRcFile
 		normalizePeonRcFile: normalizePeonRcFile,
 		//normalizePeonRcFile
-		normalizePeonRcEntry: normalizePeonRcEntry
+		normalizePeonRcEntry: normalizePeonRcEntry,
+		//normalizePeonRcStages
+		normalizePeonRcStages: normalizePeonRcStages,
+		//normalizePeonRcSteps
+		normalizePeonRcSteps: normalizePeonRcSteps
 	}
 }
 //export

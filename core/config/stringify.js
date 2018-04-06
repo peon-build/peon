@@ -16,6 +16,11 @@ function stringifyObject(object) {
 		key,
 		i;
 
+	//number or boolean
+	if (typeof object === "number" || typeof object === "boolean") {
+		return stringifyAnything("", object);
+	}
+
 	//start
 	string +="{";
 	//props
@@ -125,7 +130,7 @@ function stringifyAnything(key, value) {
 
 /**
  * stringify
- * @param {PeonBuild.PeonRc.Config} config
+ * @param {PeonBuild.PeonRc.Config|*} config
  * @return {Promise.<string>}
  */
 function stringify(config) {

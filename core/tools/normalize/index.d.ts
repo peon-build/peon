@@ -6,6 +6,8 @@ namespace PeonBuild.Peon.Tools {
 		asFileError(rawError: Error, original: PeonBuild.PeonRc.File): PeonBuild.Peon.Tools.FilesError;
 		normalizePeonRcFile(items: PeonBuild.PeonRc.File): Array<PeonBuild.Peon.Tools.Files>;
 		normalizePeonRcEntry(items: PeonBuild.PeonRc.Entry): Array<PeonBuild.Peon.Tools.Entry>;
+		normalizePeonRcStages(items: Array<PeonBuild.PeonRc.Stage>): Array<PeonBuild.Peon.Tools.Stage>;
+		normalizePeonRcSteps(items: Array<PeonBuild.PeonRc.Step>): Array<PeonBuild.Peon.Tools.Step>;
 	}
 
 }

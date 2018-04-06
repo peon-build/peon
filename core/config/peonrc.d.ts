@@ -42,7 +42,9 @@ namespace PeonBuild.PeonRc {
 	//Steps
 
 	type Step = {
-
+		name?: string;
+		stage?: string;
+		handler?();
 	}
 
 	//Stages

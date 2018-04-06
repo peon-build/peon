@@ -23,6 +23,24 @@ function normalizeEntry(entry) {
 }
 
 /**
+ * Normalize steps
+ * @param {Array<PeonBuild.PeonRc.Step>} steps
+ * @return {Array<PeonBuild.Peon.Tools.Step>}
+ */
+function normalizeSteps(steps) {
+	return  /** @type {Array.<PeonBuild.Peon.Tools.Step>}*/norm.normalizePeonRcSteps(steps);
+}
+
+/**
+ * Normalize stages
+ * @param {Array<PeonBuild.PeonRc.Stage>} stages
+ * @return {Array<PeonBuild.Peon.Tools.Stage>}
+ */
+function normalizeStages(stages) {
+	return  /** @type {Array.<PeonBuild.Peon.Tools.Stage>}*/norm.normalizePeonRcStages(stages);
+}
+
+/**
  * Create config error
  * @param {Error} err
  * @param {Array.<*>=} args
@@ -96,6 +114,62 @@ function addEntryError(configResult, entry, prop) {
 }
 
 /**
+ * Add step error
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ * @param {PeonBuild.Peon.Tools.Step} step
+ * @param {string} prop
+ * @return {Promise}
+ */
+function addStepError(configResult, step, prop) {
+	return new promise(function (fulfill, reject) {
+		let stringifyPromise,
+			error = /** @type {PeonBuild.Peon.Tools.StepError}*/step.error;
+
+		//add entry error
+		if (error) {
+			stringifyPromise = /** @type {Promise}*/stringify(error.original);
+			stringifyPromise
+				.then((lines) => {
+					addConfigError(configResult, error.error, prop, lines);
+					fulfill();
+				})
+				.catch(reject);
+			return;
+		}
+		//ok
+		fulfill();
+	});
+}
+
+/**
+ * Add stage error
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ * @param {PeonBuild.Peon.Tools.Stage} stage
+ * @param {string} prop
+ * @return {Promise}
+ */
+function addStageError(configResult, stage, prop) {
+	return new promise(function (fulfill, reject) {
+		let stringifyPromise,
+			error = /** @type {PeonBuild.Peon.Tools.StageError}*/stage.error;
+
+		//add entry error
+		if (error) {
+			stringifyPromise = /** @type {Promise}*/stringify(error.original);
+			stringifyPromise
+				.then((lines) => {
+					addConfigError(configResult, error.error, prop, lines);
+					fulfill();
+				})
+				.catch(reject);
+			return;
+		}
+		//ok
+		fulfill();
+	});
+}
+
+/**
  * Add config error
  * @param {PeonBuild.PeonRc.ConfigResult} configResult
  * @param {Error} error
@@ -121,7 +195,7 @@ function addConfigError(configResult, error, prop, lines) {
 function validateVendors(configResult) {
 	return new promise(function (fulfill, reject) {
 		let config = configResult.config,
-			errors = [];
+			errorsList = [];
 
 		if (!config.vendors) {
 			fulfill();
@@ -131,10 +205,10 @@ function validateVendors(configResult) {
 		let files = normalizeFile(config.vendors);
 
 		files.forEach((file) => {
-			errors.push(addFileError(configResult, file, "vendors"));
+			errorsList.push(addFileError(configResult, file, "vendors"));
 		});
 
-		promise.all(errors)
+		promise.all(errorsList)
 			.then(fulfill)
 			.catch(reject);
 	});
@@ -148,7 +222,7 @@ function validateVendors(configResult) {
 function validateSrc(configResult) {
 	return new promise(function (fulfill, reject) {
 		let config = configResult.config,
-			errors = [];
+			errorsList = [];
 
 		if (!config.src) {
 			fulfill();
@@ -166,10 +240,10 @@ function validateSrc(configResult) {
 		let files = normalizeFile(config.src.files);
 
 		files.forEach((file) => {
-			errors.push(addFileError(configResult, file, "src"));
+			errorsList.push(addFileError(configResult, file, "src"));
 		});
 
-		promise.all(errors)
+		promise.all(errorsList)
 			.then(fulfill)
 			.catch(reject);
 	});
@@ -183,7 +257,7 @@ function validateSrc(configResult) {
 function validatePackage(configResult) {
 	return new promise(function (fulfill, reject) {
 		let config = configResult.config,
-			errors = [];
+			errorsList = [];
 
 		if (!config.package) {
 			fulfill();
@@ -193,10 +267,10 @@ function validatePackage(configResult) {
 		let files = normalizeFile(config.package);
 
 		files.forEach((file) => {
-			errors.push(addFileError(configResult, file, "package"));
+			errorsList.push(addFileError(configResult, file, "package"));
 		});
 
-		promise.all(errors)
+		promise.all(errorsList)
 			.then(fulfill)
 			.catch(reject);
 	});
@@ -252,7 +326,7 @@ function validateOutput(configResult) {
 function validateEntry(configResult) {
 	return new promise(function (fulfill, reject) {
 		let config = configResult.config,
-			errors = [];
+			errorsList = [];
 
 		if (!config.entry) {
 			fulfill();
@@ -262,10 +336,10 @@ function validateEntry(configResult) {
 		let entries = normalizeEntry(config.entry);
 
 		entries.forEach((file) => {
-			errors.push(addEntryError(configResult, file, "entry"));
+			errorsList.push(addEntryError(configResult, file, "entry"));
 		});
 
-		promise.all(errors)
+		promise.all(errorsList)
 			.then(fulfill)
 			.catch(reject);
 	});
@@ -311,6 +385,66 @@ function validateDependencies(configResult) {
 		fulfill();
 	});
 }
+
+/**
+ * Validate steps
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ * @return {Promise}
+ */
+function validateSteps(configResult) {
+	return new promise(function (fulfill, reject) {
+		let config = configResult.config,
+			errorsList = [];
+
+		if (!config.steps) {
+			fulfill();
+			return;
+		}
+
+		let steps = normalizeSteps(config.steps);
+
+		steps.forEach((step) => {
+			errorsList.push(addStepError(configResult, step, "steps"));
+		});
+
+		promise.all(errorsList)
+			.then(fulfill)
+			.catch(reject);
+	});
+}
+
+/**
+ * Validate stages
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ * @return {Promise}
+ */
+function validateStages(configResult) {
+	return new promise(function (fulfill, reject) {
+		let config = configResult.config,
+			errorsList = [];
+
+		if (!config.stages || config.stages.length === 0) {
+			configResult.errors.push(createConfigError(
+				new Error(errors.NO_STAGES),
+				[],
+				tips.NO_STAGES
+			));
+			fulfill();
+			return;
+		}
+
+		let stages = normalizeStages(config.stages);
+
+		stages.forEach((stage) => {
+			errorsList.push(addStageError(configResult, stage, "stages"));
+		});
+
+		promise.all(errorsList)
+			.then(fulfill)
+			.catch(reject);
+	});
+}
+
 
 /**
  * Validate combination
@@ -360,6 +494,8 @@ function validator(where, configPath, configResult) {
 		validators.push(validateSrc(configResult));
 		validators.push(validatePackage(configResult));
 		validators.push(validateDependencies(configResult));
+		validators.push(validateSteps(configResult));
+		validators.push(validateStages(configResult));
 
 		validators.push(validateCombination(configResult));
 

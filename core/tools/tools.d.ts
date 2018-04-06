@@ -42,5 +42,28 @@ namespace PeonBuild.Peon {
 			deep?: boolean;
 		}
 
+		type Step = {
+			name?: string;
+			stage?: string;
+			handler?();
+			error?: StepError;
+		}
+
+		type StepError = {
+			error?: Error;
+			original?: PeonBuild.PeonRc.Step;
+		}
+
+		type Stage = {
+			name: string;
+			when?: PeonBuild.PeonRc.WhenType;
+			error?: StageError;
+		}
+
+		type StageError = {
+			error?: Error;
+			original?: PeonBuild.PeonRc.Stage;
+		}
+
 	}
 }
