@@ -17,7 +17,9 @@ function bannerConfigResult(config, result) {
 			log.debug(` ${i + 1}. ${err.error.message}`, err.args.map((arg) => {
 				return log.p.underline(arg)
 			}));
-			bannerTips(err.tips);
+			err.tips.forEach((tip) => {
+				log.debug(`  - ${tip}`);
+			});
 		});
 		log.setting("sources", `$1`, [
 			log.p.path(result.sources)

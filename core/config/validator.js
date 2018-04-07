@@ -230,6 +230,12 @@ function validateSrc(configResult) {
 		let config = configResult.config,
 			errorsList = [];
 
+		//config file is not buildable
+		if (!isBuildable(configResult)) {
+			fulfill();
+			return;
+		}
+
 		if (!config.src) {
 			fulfill();
 			return;
@@ -291,6 +297,12 @@ function validateOutput(configResult) {
 	return new promise(function (fulfill, reject) {
 		let config = configResult.config;
 
+		//config file is not buildable
+		if (!isBuildable(configResult)) {
+			fulfill();
+			return;
+		}
+
 		if (!config.output) {
 			configResult.errors.push(createConfigError(
 				new Error(errors.NO_OUTPUT_SPECIFIED)
@@ -333,6 +345,12 @@ function validateEntry(configResult) {
 	return new promise(function (fulfill, reject) {
 		let config = configResult.config,
 			errorsList = [];
+
+		//config file is not buildable
+		if (!isBuildable(configResult)) {
+			fulfill();
+			return;
+		}
 
 		if (!config.entry) {
 			fulfill();
@@ -526,12 +544,24 @@ function validateSrcAndEntry(configResult) {
 
 	//nothing specified, invalid state
 	if (!config.src && !config.entry) {
-		configResult.errors.push(createConfigError(
+		configResult.messages.push(createConfigError(
 			new Error(errors.NO_SOURCES_SPECIFIED),
 			[],
 			tips.NO_SOURCES_SPECIFIED
 		));
 	}
+}
+
+
+/**
+ * Check if config is buildable
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ * @return {boolean}
+ */
+function isBuildable(configResult) {
+	let config = configResult.config;
+
+	return Boolean(config.src || config.entry || config.output);
 }
 
 /**
