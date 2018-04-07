@@ -15,6 +15,13 @@ const tips = {
 	],
 	"NO_STAGES": [
 		`If there is no stages, Peon is basically not work. Define stages to successful run build. You can use default stages names.`
+	],
+	"NON_EXISTING_STAGE": [
+		`Rename stage and use one of defined in 'stages' array.`,
+		`Add stage into 'stages' array.`
+	],
+	"UNUSED_STAGE": [
+		`You can remove this stage from your configuration file.`
 	]
 };
 

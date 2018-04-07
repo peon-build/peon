@@ -19,7 +19,10 @@ namespace PeonBuild.PeonRc {
 		messages?: Array<ConfigError>;
 		warnings?:  Array<ConfigError>;
 		errors?: Array<ConfigError>;
-		sources?: Array<>;
+		sources?: Array<string>;
+
+		stages?: Array<PeonBuild.Peon.Tools.Stage>;
+		steps?: Array<PeonBuild.Peon.Tools.Step>;
 	};
 
 	type ConfigError = {

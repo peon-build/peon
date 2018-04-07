@@ -15,7 +15,9 @@ const errors = {
 	"INVALID_STAGE_DEFINITION": `Property 'stages' must by array of stages.`,
 	"INVALID_STAGE_FORMAT": `Invalid format for stage.`,
 	"STAGE_HAS_NO_NAME": `There is stage without name. Name must be specified, because is used in steps for determining when step run.`,
-	"NO_STAGES": `There all no stages. Stages must be defined to run all necessary items.`
+	"NO_STAGES": `There all no stages. Stages must be defined to run all necessary items.`,
+	"NON_EXISTING_STAGE": `Stage with name $1 is defined in steps, but is not exists in stage list.`,
+	"UNUSED_STAGE": `Stage with name $1 is not used in steps.`
 };
 
 module.exports = errors;

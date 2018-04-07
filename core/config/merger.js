@@ -176,7 +176,9 @@ function mergeConfigs(files, configPath, configs) {
 			sources: [],
 			errors: [],
 			warnings: [],
-			messages: []
+			messages: [],
+			steps: [],
+			stages: []
 		};
 		//iterate all configs
 		for (i = 0; i < configs.length; i++) {

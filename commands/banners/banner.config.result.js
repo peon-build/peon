@@ -26,8 +26,8 @@ function bannerConfigResult(config, result) {
 	//warnings
 	if (result.warnings && result.warnings.length) {
 		log.warning("There are some [WARNINGS] for configuration file:");
-		result.errors.forEach((err) => {
-			log.error(`There is [WARNING] from configuration file. Message from warning is '${err.error.message}'.`, err.args.map((arg) => {
+		result.warnings.forEach((err) => {
+			log.warning(`There is [WARNING] from configuration file. Message from warning is '${err.error.message}'.`, err.args.map((arg) => {
 				return log.p.underline(arg)
 			}));
 			bannerTips(err.tips);
@@ -35,8 +35,6 @@ function bannerConfigResult(config, result) {
 		log.setting("sources", `$1`, [
 			log.p.path(result.sources)
 		]);
-		//invalidate
-		valid = false;
 	}
 	//errors
 	if (result.errors && result.errors.length) {

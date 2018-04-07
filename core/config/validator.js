@@ -4,6 +4,8 @@ const errors = require('../info/errors.js');
 const tips = require('../info/tips.js');
 const stringify = require('./stringify.js');
 
+const enums = require('./enum.js');
+
 /**
  * Normalize file
  * @param {PeonBuild.PeonRc.File} file
@@ -136,6 +138,8 @@ function addStepError(configResult, step, prop) {
 				.catch(reject);
 			return;
 		}
+		//add step if is valid
+		configResult.steps.push(step);
 		//ok
 		fulfill();
 	});
@@ -164,6 +168,8 @@ function addStageError(configResult, stage, prop) {
 				.catch(reject);
 			return;
 		}
+		//add step if is valid
+		configResult.stages.push(stage);
 		//ok
 		fulfill();
 	});
@@ -453,28 +459,79 @@ function validateStages(configResult) {
  */
 function validateCombination(configResult) {
 	return new promise(function (fulfill) {
-		let config = configResult.config;
-
-		//both specified, invalid state
-		if (config.src && config.entry) {
-			configResult.errors.push(createConfigError(
-				new Error(errors.SOURCES_CLASH),
-				[],
-				tips.SOURCES_CLASH
-			));
-		}
-
-		//nothing specified, invalid state
-		if (!config.src && !config.entry) {
-			configResult.errors.push(createConfigError(
-				new Error(errors.NO_SOURCES_SPECIFIED),
-				[],
-				tips.NO_SOURCES_SPECIFIED
-			));
-		}
+		//src and entry
+		validateSrcAndEntry(configResult);
+		//stages and steps
+		validateStepsAndStages(configResult);
 
 		fulfill();
 	});
+}
+
+/**
+ * Validate src and entry
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ */
+function validateStepsAndStages(configResult) {
+	let stagesSteps,
+		stagesNames;
+
+	//map data
+	stagesNames = configResult.stages.map(stage => stage.name);
+	stagesSteps = configResult.steps.map(step => step.stage);
+
+	//steps
+	configResult.steps.forEach((step) => {
+		//non existing state
+		if (stagesNames.indexOf(step.stage) === -1) {
+			//push error
+			configResult.errors.push(createConfigError(
+				new Error(errors.NON_EXISTING_STAGE),
+				[step.stage],
+				tips.NON_EXISTING_STAGE
+			));
+		}
+	});
+
+	//stages
+	configResult.stages.forEach((stage) => {
+		//no used stage
+		if (stagesSteps.indexOf(stage.name) === -1 && !enums.PredefinedStages[stage.name]) {
+			//push error
+			configResult.warnings.push(createConfigError(
+				new Error(errors.UNUSED_STAGE),
+				[stage.name],
+				tips.UNUSED_STAGE
+			));
+		}
+	});
+
+}
+
+/**
+ * Validate src and entry
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ */
+function validateSrcAndEntry(configResult) {
+	let config = configResult.config;
+
+	//both specified, invalid state
+	if (config.src && config.entry) {
+		configResult.errors.push(createConfigError(
+			new Error(errors.SOURCES_CLASH),
+			[],
+			tips.SOURCES_CLASH
+		));
+	}
+
+	//nothing specified, invalid state
+	if (!config.src && !config.entry) {
+		configResult.errors.push(createConfigError(
+			new Error(errors.NO_SOURCES_SPECIFIED),
+			[],
+			tips.NO_SOURCES_SPECIFIED
+		));
+	}
 }
 
 /**

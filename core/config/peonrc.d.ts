@@ -49,10 +49,10 @@ namespace PeonBuild.PeonRc {
 
 	//Stages
 
-	type Stage = Array<string | StageDef>;
+	type Stage = Array<string | StageDef | PredefinedStages>;
 
 	type StageDef = {
-		name: string;
+		name: string | PredefinedStages;
 		when?: WhenType;
 	}
 
@@ -79,6 +79,14 @@ namespace PeonBuild.PeonRc {
 
 	enum WhenType {
 		manual = "manual"
+	}
+
+	enum PredefinedStages {
+		clean = "clean",
+		tests = "tests",
+		build = "build",
+		pack = "pack",
+		deploy = "deploy"
 	}
 
 	enum LibraryTargetType {

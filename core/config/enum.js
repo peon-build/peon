@@ -5,6 +5,15 @@ module.exports = {
 	WhenType: {
 		manual: "manual",
 		automatic: "automatic"
+	},
+
+	/** @enum {PeonBuild.PeonRc.PredefinedStages}*/
+	PredefinedStages: {
+		clean: "clean",
+		tests: "tests",
+		build: "build",
+		pack: "pack",
+		deploy: "deploy"
 	}
 
 };
