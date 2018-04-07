@@ -77,6 +77,45 @@ function evName(configPath, configResult, files) {
 }
 
 /**
+ * Evaluate version
+ * @param {string} configPath
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ * @param {Object.<string, PeonBuild.PeonRc.ExternalFile>} files
+ * @return {string}
+ */
+function evVersion(configPath, configResult, files) {
+	let versions = [];
+
+	//iterate all versions
+	forFiles(files, (name, externalFile) => {
+		if (externalFile.version) {
+			versions.push(externalFile.version);
+		}
+	});
+	//filter uniques :)
+	versions = [...new Set(versions)];
+
+	//info about more versions
+	if (versions.length > 1) {
+		//add message
+		configResult.messages.push(createConfigError(
+			new Error(errors.MULTIPLE_VERSIONS_POSSIBLE_FOUND), [versions],
+			tips.MULTIPLE_VERSIONS_POSSIBLE_FOUND
+		));
+	}
+	//error no version
+	if (versions.length === 0) {
+		//add message
+		configResult.errors.push(createConfigError(
+			new Error(errors.NO_VERSION_FOUND), [],
+			tips.NO_VERSION_FOUND
+		));
+	}
+	//use first name
+	return versions[0];
+}
+
+/**
  * Evaluate dependencies
  * @param {string} configPath
  * @param {PeonBuild.PeonRc.ConfigResult} configResult
@@ -153,6 +192,8 @@ function mergeConfig(configPath, files, configResult, currentConfig, last) {
 	if (last) {
 		//set name
 		config.name = currentConfig.name || evName(configPath, configResult, files);
+		//set version
+		config.version = currentConfig.version || evVersion(configPath, configResult, files);
 		//dependencies
 		config.dependencies = evDependencies(configPath, configResult, files, currentConfig.dependencies || []);
 	}

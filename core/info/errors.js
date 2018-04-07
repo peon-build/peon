@@ -1,6 +1,8 @@
 const errors = {
 	"CANNOT_LOAD_CONFIG_FILES": `There is problem when loading config files. Try to check enter pattern.`,
 	"MULTIPLE_NAMES_POSSIBLE_FOUND": `There can be more names that are possible to use. These names are $1.`,
+	"MULTIPLE_VERSIONS_POSSIBLE_FOUND": `There can be more versions that are possible to use. These versions are $1.`,
+	"NO_VERSION_FOUND": `There is no defined version. This is necessary for deployment and publish operation.`,
 	"SOURCE_FILE_NOT_EXISTS": `There is no source file $1 that can be used for data load.`,
 	"SOURCE_EXISTS_BUT_NO_FILES_PROVIDED": `There is 'src' property but missing 'files' property.`,
 	"INVALID_PATTERN_OR_FORMAT": `Invalid file format or pattern. You use pattern that is not compatible with blob or minimatch format.`,

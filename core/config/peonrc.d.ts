@@ -3,6 +3,7 @@ namespace PeonBuild.PeonRc {
 	type Config = {
 
 		name?: string;
+		version?: string;
 
 		output?: File;
 		vendors?: File;
