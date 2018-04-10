@@ -1,6 +1,8 @@
 const files = require('./files/files.search.js');
 const tree = require('./files/files.tree.js');
 const ignore = require('./files/files.ignore.js');
+const dependencies = require('./dependencies/index.js');
+const normalize = require('./normalize/index.js')();
 
 
 function peonTools() {
@@ -11,7 +13,11 @@ function peonTools() {
 		files: files,
 		ignores: ignore,
 		//tree file manipulator
-		asTree: tree
+		asTree: tree,
+		//normalize
+		normalize: normalize,
+		//dependencies
+		dependencies: dependencies
 	}
 }
 //export

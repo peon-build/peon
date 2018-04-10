@@ -1,11 +1,10 @@
-const promise = global.Promise;
-
 const log = /** @type {PeonBuild.Log}*/require('../log');
 const core = /** @type {PeonBuild.Peon}*/require('../index')();
 const loadFromSettings = require('./utils/setting.from.js');
 
 const bannerConfigResult = require('./banners/banner.config.result.js');
 const bannerConfigInfo = require('./banners/banner.config.info.js');
+const bannerPrepareResults = require('./banners/banner.prepare.results.js');
 
 const path = require("path");
 
@@ -24,12 +23,54 @@ function getConfig(setting) {
 }
 
 /**
+ * Run
+ * @param {string} cwd
+ * @param {Object.<string, PeonBuild.PeonRc.ConfigResult>} configResults
+ */
+function run(cwd, configResults) {
+	let configs = loadConfigsAndValidate(configResults);
+
+	//prepare
+	runPrepare(cwd, configs);
+}
+
+/**
+ * Run prepare
+ * @param {string} cwd
+ * @param {Map.<string, PeonBuild.PeonRc.ConfigResult>} configs
+ */
+function runPrepare(cwd, configs) {
+	let preparePromise;
+
+	//banner
+	bannerPrepare();
+	//start
+	preparePromise = core.run.prepare(cwd, configs);
+	preparePromise
+		.then((prepareResults) => {
+			//results
+			bannerPrepareResults(prepareResults);
+			//done
+			bannerPrepareDone();
+
+			//TODO: Continue
+
+			bannerDone();
+		})
+		.catch((err) => {
+			//log error
+			log.error(`An [ERROR] occurred when running run command in peon. Message from error is '${err.message}'.`);
+			log.stacktrace(err);
+		});
+}
+
+/**
  * Load configs and validate
  * @param {Object.<string, PeonBuild.PeonRc.ConfigResult>} configResults
- * @return {Array.<PeonBuild.PeonRc.ConfigResult>}
+ * @return {Map.<string, PeonBuild.PeonRc.ConfigResult>}
  */
 function loadConfigsAndValidate(configResults) {
-	let configs = [];
+	let configs = {};
 
 	//as array
 	Object.keys(configResults).forEach(function(key) {
@@ -37,7 +78,7 @@ function loadConfigsAndValidate(configResults) {
 
 		//add valid config into list
 		if (configResult.errors.length === 0) {
-			configs.push(configResult);
+			configs[key] = configResult;
 		}
 		//banner configs
 		bannerConfigInfo(key);
@@ -57,9 +98,8 @@ function loadConfigFile(cwd, config, fromSettings) {
 	//load config
 	core.config.one(cwd, config, fromSettings)
 		.then((configResults) => {
-			let configs = loadConfigsAndValidate(configResults);
-
-			//TODO: run
+			//run start
+			run(cwd, configResults);
 		})
 		.catch((err) => {
 			//log error
@@ -77,9 +117,8 @@ function loadConfigFiles(cwd, fromSettings) {
 	//load config
 	core.config.all(cwd, fromSettings)
 		.then((configResults) => {
-			let configs = loadConfigsAndValidate(configResults);
-
-			//TODO: run
+			//run start
+			run(cwd, configResults);
 		})
 		.catch((err) => {
 			//log error
@@ -120,10 +159,37 @@ function banner(cwd, setting, config) {
 	]);
 	//report options
 	if (setting.module) {
-		log.setting("module", "$2", [
+		log.setting("module", "$1", [
 			log.p.underline(setting.module)
 		]);
 	}
+}
+
+/**
+ * Banner done
+ */
+function bannerDone() {
+	//time report
+	log.timestamp(`Run runtime`, `Running runtime is done.`);
+}
+
+/**
+ * Banner prepare
+ */
+function bannerPrepare() {
+	//info
+	log.title(`Run information: Faze $1 ...`, [
+		log.p.underline('prepare')
+	]);
+	log.timestamp(`Faze prepare`, `Collecting dependencies.`);
+}
+
+/**
+ * Banner prepare done
+ */
+function bannerPrepareDone() {
+	//time report
+	log.timestamp(`Faze prepare`, `Prepare is done.`);
 }
 
 //#: Command

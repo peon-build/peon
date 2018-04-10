@@ -1,9 +1,11 @@
 namespace PeonBuild.Peon {
 
 	type PeonTools = {
+		normalize: PeonBuild.Peon.Tools.Normalize;
 		asTree(where: string, files: Array<string>): Map;
 		files(where: string, items: PeonBuild.PeonRc.File): Promise<Array<PeonBuild.Peon.Tools.Files>>;
 		ignores(where: string, setting: PeonBuild.Peon.Tools.IgnoreSettings): Promise<Array<PeonBuild.Peon.Tools.Ignore>>;
+		dependencies(where: string, configs: Map<string, PeonBuild.PeonRc.ConfigResult>): Promise<PeonBuild.Peon.Tools.DependenciesGraph>;
 	}
 
 	namespace Tools {
