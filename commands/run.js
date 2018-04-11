@@ -178,6 +178,7 @@ function bannerDone() {
  */
 function bannerPrepare() {
 	//info
+	log.space();
 	log.title(`Run information: Faze $1 ...`, [
 		log.p.underline('prepare')
 	]);

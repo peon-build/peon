@@ -95,7 +95,6 @@ function configView(configMap, answers) {
 		})
 		.catch((err) => {
 			//log error
-			log.space();
 			log.error(`An [ERROR] occurred when trying to show config file. Message from error is '${err.message}'.`);
 			log.stacktrace(err);
 		});
@@ -115,7 +114,6 @@ function configGet(cwd, fromSettings) {
 			log.quote(true, `Found $1 files.`, [
 				log.p.number(Object.keys(configMap).length.toString())
 			]);
-			log.space();
 			//show config options
 			configDetails(cwd, configMap);
 
