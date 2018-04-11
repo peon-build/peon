@@ -4,7 +4,7 @@ const bannerTips = require('./banner.tips');
 
 /**
  * Banner prepare results
- * @param {PeonBuild.PeonRc.Results.RunPrepare} prepareResults
+ * @param {PeonBuild.PeonRc.Results.Prepare} prepareResults
  */
 function bannerPrepareResults(prepareResults) {
 	//modules order

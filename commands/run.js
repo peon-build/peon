@@ -45,7 +45,7 @@ function runPrepare(cwd, configs) {
 	//banner
 	bannerPrepare();
 	//start
-	preparePromise = core.run.prepare(cwd, configs);
+	preparePromise = core.prepare(cwd, configs);
 	preparePromise
 		.then((prepareResults) => {
 			//results
