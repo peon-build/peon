@@ -11,8 +11,28 @@ const hgignoreGlob = "/**/.hgignore";
 const hgfolder = ".hg";
 
 const warnings = {
-	"VCS_ROOT_NOT_EXISTS": `There is existing ${hgignore} file but there are no ${hgfolder} folder.`
+	"VCS_ROOT_NOT_EXISTS": `There is existing ${hgignore} file but there are no ${hgfolder} folder.`,
+	"UNSUPPORTED_SYNTAX": `There is unsupported syntax group. Currently we support only 'glob' syntax type.`
 };
+
+/**
+ * Is syntax
+ * @param {string} line
+ * @return {boolean}
+ */
+function isSyntax(line) {
+	return line.toLowerCase().indexOf("syntax:") >= 0;
+}
+
+/**
+ * Is type
+ * @param {string} line
+ * @param {string} type
+ * @return {boolean}
+ */
+function isType(line, type) {
+	return isSyntax(line) && line.toLowerCase().indexOf(type) > 0;
+}
 
 /**
  * Load files
@@ -86,16 +106,46 @@ function loadSettings(settings) {
 
 /**
  * Process lines
+ * @param {PeonBuild.Peon.Tools.Ignore} ignoredFile
  * @param {Array.<string>} lines
  */
-function processLines(lines) {
+function processLines(ignoredFile, lines) {
+	let filtered = [],
+		unsupported = [],
+		supported = true;
+
 	//filter unwanted
 	lines = funcs.normalizeLines(lines);
 
-	//TODO: HG has 'syntax: glob' and 'syntax: regexp' - implement this and try to load globs, convert regex on globs?
+	//iterate all lines
+	lines.forEach((line) => {
+		let syntaxLine = isSyntax(line);
+
+		//get syntax line
+		if (syntaxLine) {
+			//check if is glob
+			supported = isType(line, "glob");
+			//add to unsupported
+			if (!supported && unsupported.indexOf(line) === -1) {
+				unsupported.push(line);
+			}
+			return;
+		}
+
+		//normal line
+		if (supported) {
+			filtered.push(line);
+		}
+	});
+
+	//unsupported syntax
+	if (unsupported.length) {
+		// noinspection JSCheckFunctionSignatures
+		ignoredFile.warning = new Error(warnings.UNSUPPORTED_SYNTAX);
+	}
 
 	//create ignores files
-	return funcs.normalizePatterns(lines);
+	return funcs.normalizePatterns(filtered);
 }
 
 /**
@@ -112,8 +162,10 @@ function loadIgnored(file, ignored) {
 				//load files
 				loadFile(file)
 					.then((lines) => {
-						let ignoredFile = ignoredFileDef(file, processLines(lines));
+						let ignoredFile = ignoredFileDef(file);
 
+						//process lines
+						processLines(ignoredFile, lines);
 						//vcs not exists
 						if (!exists) {
 							// noinspection JSCheckFunctionSignatures
@@ -134,14 +186,13 @@ function loadIgnored(file, ignored) {
 /**
  * Ignore file def
  * @param {string} file
- * @param {Array.<string>} files
  * @return {PeonBuild.Peon.Tools.Ignore}
  */
-function ignoredFileDef(file, files) {
+function ignoredFileDef(file) {
 	let obj = /** @type {PeonBuild.Peon.Tools.Ignore}*/{};
 
 	obj.file = file;
-	obj.ignored = files;
+	obj.ignored = [];
 	obj.type = hgfolder;
 
 	return obj;
