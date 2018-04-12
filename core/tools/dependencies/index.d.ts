@@ -14,7 +14,7 @@ namespace PeonBuild.Peon.Tools {
 
 	type DependencyInfo = {
 		name?: string;
-		version?: Array<string>;
+		versions?: Array<string>;
 		externals: Array<DependencyInfo>;
 		internals: Array<DependencyInfo>;
 		config?: PeonBuild.PeonRc.Config;

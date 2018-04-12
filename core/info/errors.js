@@ -20,7 +20,9 @@ const errors = {
 	"NO_STAGES": `There all no stages. Stages must be defined to run all necessary items.`,
 	"NON_EXISTING_STAGE": `Stage with name $1 is defined in steps, but is not exists in stage list.`,
 	"UNUSED_STAGE": `Stage with name $1 is not used in steps.`,
-	"POSSIBLE_CIRCULAR_REFERENCE": `There is detected circular reference when processing module $1.`
+	"POSSIBLE_CIRCULAR_REFERENCE": `There is detected circular reference when processing module $1.`,
+	"NO_VERSION_CALCULATED": `There is no specified version than can be determined for module $1.`,
+	"MULTIPLE_VERSIONS_FOUND": `There are more possible versions $1 for module $2.`
 };
 
 module.exports = errors;

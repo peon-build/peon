@@ -1,6 +1,10 @@
 const promise = global.Promise;
+const semver = require("semver");
 
 const errors = require('../../info/errors.js');
+const tips = require('../../info/tips.js');
+
+const versionsAll = "*";
 
 /**
  * Create dependency info
@@ -11,7 +15,7 @@ function createDependencyInfo(name) {
 	let info = /** @type {PeonBuild.Peon.Tools.DependencyInfo}*/{};
 
 	info.name = name;
-	info.version = [];
+	info.versions = [];
 	info.externals = [];
 	info.internals = [];
 
@@ -50,8 +54,8 @@ function collectLocalModules(configs, graph) {
 		//dependency info
 		info = graph.modules[config.name] || createDependencyInfo(config.name);
 		//version
-		info.version.push(config.version);
-		info.version = [...new Set(info.version)];
+		info.versions.push(config.version);
+		info.versions = [...new Set(info.versions)];
 		//config
 		info.config = config;
 		//save
@@ -73,8 +77,8 @@ function collectExternalModules(configs, graph) {
 			//dependency info
 			info = graph.modules[dependency.module] || createDependencyInfo(dependency.module);
 			//version
-			info.version.push(dependency.version);
-			info.version = [...new Set(info.version)];
+			info.versions.push(dependency.version);
+			info.versions = [...new Set(info.versions)];
 			//save
 			graph.modules[dependency.module] = info;
 		});
@@ -145,11 +149,68 @@ function calculateDependenciesList(graph) {
 	internals.forEach((module) => {
 		graph.errors.push(createDependencyError(
 			new Error(errors.POSSIBLE_CIRCULAR_REFERENCE), [module.name]
-		))
+		));
 	});
 
 	//set
 	graph.sorted = sorted;
+}
+
+/**
+ * Calculate versions
+ * @param {PeonBuild.Peon.Tools.DependenciesGraph} graph
+ */
+function calculateVersions(graph) {
+	//collect internal only
+	Object.keys(graph.modules).forEach((module) => {
+		let versions,
+			intersects = [],
+			nonintersects = [],
+			dependency = graph.modules[module];
+
+		//filter unwanted
+		versions = dependency.versions.filter((item) => {
+			return item !== versionsAll; //all
+		});
+
+		//check intersects for all versions
+		versions.forEach((version) => {
+			let valid = versions.every((ver) => {
+				return semver.intersects(version, ver);
+			});
+
+			//check if its intersect or not
+			if (valid) {
+				intersects.push(version);
+			} else {
+				nonintersects.push(version);
+			}
+		});
+
+		//set versions
+		dependency.versions = intersects;
+
+		//error incompatible versions
+		if (nonintersects.length) {
+			//add error
+			graph.errors.push(createDependencyError(
+				new Error(errors.MULTIPLE_VERSIONS_FOUND),
+				[nonintersects, module],
+				tips.MULTIPLE_VERSIONS_FOUND
+			));
+		}
+		//no version determined
+		if (intersects.length === 0) {
+			//add error
+			graph.errors.push(createDependencyError(
+				new Error(errors.NO_VERSION_CALCULATED),
+				[module],
+				tips.NO_VERSION_CALCULATED
+			));
+		}
+
+	});
+
 }
 
 /**
@@ -202,8 +263,8 @@ function dependencies(cwd, configs) {
 
 		//calculate dependencies list
 		calculateDependenciesList(graph);
-
-		//TODO: Use semver to validate versions?
+		//calculate versions
+		calculateVersions(graph);
 
 		fulfill(graph);
 	});

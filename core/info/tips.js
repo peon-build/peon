@@ -30,6 +30,12 @@ const tips = {
 	],
 	"UNUSED_STAGE": [
 		`You can remove this stage from your configuration file.`
+	],
+	"NO_VERSION_CALCULATED": [
+		`There must be at lest one version specified exactly in modules. You can not use '*' everywhere.`
+	],
+	"MULTIPLE_VERSIONS_FOUND": [
+		`You must specified version range that is intersected. For example ^2.0.0 and ^3.0.0 are ok, 1.0.0 and 2.0.0 is wrong.`
 	]
 };
 
