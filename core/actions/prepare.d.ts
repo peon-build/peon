@@ -6,6 +6,7 @@ namespace PeonBuild.PeonRc {
 
 		type Prepare = {
 			dependencies: PeonBuild.Peon.Tools.DependenciesGraph;
+			runtime: Map<string, PeonBuild.Peon.Tools.RuntimeGraph>;
 		}
 
 	}

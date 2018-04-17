@@ -49,7 +49,7 @@ function runPrepare(cwd, configs) {
 	preparePromise
 		.then((prepareResults) => {
 			//results
-			bannerPrepareResults(prepareResults);
+			bannerPrepareResults(configs, prepareResults);
 			//done
 			bannerPrepareDone();
 
@@ -182,7 +182,7 @@ function bannerPrepare() {
 	log.title(`Run information: Faze $1 ...`, [
 		log.p.underline('prepare')
 	]);
-	log.timestamp(`Faze prepare`, `Collecting dependencies.`);
+	log.timestamp(`Faze prepare`, `Collecting dependencies, runtime.`);
 }
 
 /**

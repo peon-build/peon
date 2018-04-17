@@ -58,6 +58,7 @@ function collectLocalModules(configs, graph) {
 		info.versions = [...new Set(info.versions)];
 		//config
 		info.config = config;
+		info.configPath = configPath;
 		//save
 		graph.modules[config.name] = info;
 	});

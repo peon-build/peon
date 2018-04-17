@@ -3,7 +3,7 @@ namespace PeonBuild.Peon.Tools {
 	type DependenciesGraph = {
 		modules: Map<string, DependencyInfo>;
 		errors: Array<DependencyError>;
-		sorted: Array<DependencyInfo>;
+		sorted: Array<string>;
 	}
 
 	type DependencyError = {
@@ -13,11 +13,12 @@ namespace PeonBuild.Peon.Tools {
 	}
 
 	type DependencyInfo = {
-		name?: string;
-		versions?: Array<string>;
+		name: string;
+		versions: Array<string>;
 		externals: Array<DependencyInfo>;
 		internals: Array<DependencyInfo>;
 		config?: PeonBuild.PeonRc.Config;
+		configPath?: string;
 	}
 
 }
