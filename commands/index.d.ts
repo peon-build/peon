@@ -9,5 +9,6 @@ namespace PeonBuild {
 		logLevel?: PeonBuild.LogLogLevel;
 		configFile?: string;
 		module?: string;
+		stages?: Array<string>;
 	}
 }

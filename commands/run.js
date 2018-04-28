@@ -5,6 +5,7 @@ const loadFromSettings = require('./utils/setting.from.js');
 const bannerConfigResult = require('./banners/banner.config.result.js');
 const bannerConfigInfo = require('./banners/banner.config.info.js');
 const bannerPrepareResults = require('./banners/banner.prepare.results.js');
+const bannerQueueList = require('./banners/banner.queue.list.js');
 
 const path = require("path");
 
@@ -24,22 +25,24 @@ function getConfig(setting) {
 
 /**
  * Run
+ * @param {PeonBuild.PeonSetting} setting
  * @param {string} cwd
  * @param {Object.<string, PeonBuild.PeonRc.ConfigResult>} configResults
  */
-function run(cwd, configResults) {
+function run(setting, cwd, configResults) {
 	let configs = loadConfigsAndValidate(configResults);
 
 	//prepare
-	runPrepare(cwd, configs);
+	runPrepare(setting, cwd, configs);
 }
 
 /**
  * Run prepare
+ * @param {PeonBuild.PeonSetting} setting
  * @param {string} cwd
  * @param {Map.<string, PeonBuild.PeonRc.ConfigResult>} configs
  */
-function runPrepare(cwd, configs) {
+function runPrepare(setting, cwd, configs) {
 	let preparePromise;
 
 	//banner
@@ -52,14 +55,42 @@ function runPrepare(cwd, configs) {
 			bannerPrepareResults(configs, prepareResults);
 			//done
 			bannerPrepareDone();
-
-			//TODO: Continue
-
-			bannerDone();
+			//run queue
+			runQueue(setting, cwd, prepareResults);
 		})
 		.catch((err) => {
 			//log error
 			log.error(`An [ERROR] occurred when running run command in peon. Message from error is '${err.message}'.`);
+			log.stacktrace(err);
+		});
+}
+
+/**
+ * Run queue
+ * @param {PeonBuild.PeonSetting} setting
+ * @param {string} cwd
+ * @param {PeonBuild.PeonRc.Results.Prepare} prepareResults
+ */
+function runQueue(setting, cwd, prepareResults) {
+	let runPromise;
+
+	//banner
+	bannerQueue();
+	//start
+	runPromise = core.run.queue(cwd, prepareResults, setting.stages);
+	runPromise
+		.then((queue) => {
+			//banner queue info
+			bannerQueueList(queue);
+			//done
+			bannerQueueDone();
+
+			//TODO: Continue
+			bannerDone();
+		})
+		.catch((err) => {
+			//log error
+			log.error(`An [ERROR] occurred when running run.queue command in peon. Message from error is '${err.message}'.`);
 			log.stacktrace(err);
 		});
 }
@@ -92,14 +123,15 @@ function loadConfigsAndValidate(configResults) {
  * Load configuration file
  * @param {string} cwd
  * @param {string} config
+ * @param {PeonBuild.PeonSetting} setting
  * @param {PeonBuild.PeonRc.FromSettings} fromSettings
  */
-function loadConfigFile(cwd, config, fromSettings) {
+function loadConfigFile(cwd, config, setting, fromSettings) {
 	//load config
 	core.config.one(cwd, config, fromSettings)
 		.then((configResults) => {
 			//run start
-			run(cwd, configResults);
+			run(setting, cwd, configResults);
 		})
 		.catch((err) => {
 			//log error
@@ -111,14 +143,15 @@ function loadConfigFile(cwd, config, fromSettings) {
 /**
  * Load configuration files
  * @param {string} cwd
+ * @param {PeonBuild.PeonSetting} setting
  * @param {PeonBuild.PeonRc.FromSettings} fromSettings
  */
-function loadConfigFiles(cwd, fromSettings) {
+function loadConfigFiles(cwd, setting, fromSettings) {
 	//load config
 	core.config.all(cwd, fromSettings)
 		.then((configResults) => {
 			//run start
-			run(cwd, configResults);
+			run(setting, cwd, configResults);
 		})
 		.catch((err) => {
 			//log error
@@ -163,6 +196,11 @@ function banner(cwd, setting, config) {
 			log.p.underline(setting.module)
 		]);
 	}
+	if (setting.stages) {
+		log.setting("stages", "$1", [
+			log.p.underline(setting.stages)
+		]);
+	}
 }
 
 /**
@@ -193,6 +231,26 @@ function bannerPrepareDone() {
 	log.timestamp(`Faze prepare`, `Prepare is done.`);
 }
 
+/**
+ * Banner queue
+ */
+function bannerQueue() {
+	//info
+	log.space();
+	log.title(`Run information: Faze $1 ...`, [
+		log.p.underline('queue collect')
+	]);
+	log.timestamp(`Faze queue collect`, `Building queue of stages for modules.`);
+}
+
+/**
+ * Banner queue done
+ */
+function bannerQueueDone() {
+	//time report
+	log.timestamp(`Faze queue collect`, `Building queue is done.`);
+}
+
 //#: Command
 
 /**
@@ -213,11 +271,11 @@ function commandRun(cwd, setting) {
 			//process all modules and files
 			if (!config) {
 				//process all
-				loadConfigFiles(cwd, fromSettings);
+				loadConfigFiles(cwd, setting, fromSettings);
 				return;
 			}
 			//process only specific file
-			loadConfigFile(cwd, config, fromSettings);
+			loadConfigFile(cwd, config, setting, fromSettings);
 		})
 		.catch((err) => {
 			//log error

@@ -48,6 +48,11 @@ function fillSetting(env, settings) {
 			value = env["configFile"];
 			settings.configFile = value || settings.configFile;
 			break;
+		case "stages":
+			value = env["stages"];
+			value = value ? value.split(",").map((s) => s.trim()) : value;
+			settings.stages = value || settings.stages;
+			break;
 		default:
 			break;
 		}
@@ -81,6 +86,7 @@ program
 program
 	.command('run [module]')
 	.description(`Run build runtime with all stages for all modules or single module to desired output path and include all available assets.`)
+	.option('-s, --stages <stages>', `Run all stages defined. Stages must be splitted by comma. Also run all necessary stages before.`)
 	.action((module, env) => {
 		let setting = fillSetting(env),
 			directory = process.cwd();
