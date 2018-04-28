@@ -10,39 +10,23 @@ const enums = require('../config/enum.js');
  * @return {Promise<Array.<PeonBuild.PeonRc.Results.QueueItem>>}
  */
 function processDependencies(cwd, prepare, stages) {
-	let dependencies = prepare.dependencies,
+	let i,
+		p = promise.resolve(),
+		dependencies = prepare.dependencies,
 		modules = dependencies.sorted.slice(0),
 		queue = /** @type {Array.<PeonBuild.PeonRc.Results.QueueItem>}*/[];
 
 	//promise
 	return new promise(function (fulfill, reject){
-		processModuleDependencies(cwd, queue, prepare, stages, modules, fulfill, reject);
+		//create all
+		for (i = 0; i < modules.length; i++) {
+			p = p.then(() => processDependency(cwd, queue, prepare, stages, modules)).catch(reject);
+		}
+		//end
+		p.then(() => {
+			fulfill(queue);
+		});
 	});
-}
-
-/**
- * Process module dependencies
- * @param {string} cwd
- * @param {Array.<PeonBuild.PeonRc.Results.QueueItem>} queue
- * @param {PeonBuild.PeonRc.Results.Prepare} prepare
- * @param {Array.<string>=} stages
- * @param {Array.<string>} modules
- * @param {function(Array.<PeonBuild.PeonRc.Results.QueueItem>)} fulfill
- * @param {function()} reject
- */
-function processModuleDependencies(cwd, queue, prepare, stages, modules, fulfill, reject) {
-	//process dependency
-	processDependency(cwd, queue, prepare, stages, modules)
-		.then(() => {
-			//no modules left => complete
-			if (modules.length === 0) {
-				fulfill(queue);
-				return;
-			}
-			//run again
-			processModuleDependencies(cwd, queue, prepare, stages, modules, fulfill, reject);
-		})
-		.catch(reject);
 }
 
 /**
