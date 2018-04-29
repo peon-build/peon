@@ -1,3 +1,5 @@
+const promise = global.Promise;
+
 const log = /** @type {PeonBuild.Log}*/require('../log');
 const core = /** @type {PeonBuild.Peon}*/require('../index')();
 const loadFromSettings = require('./utils/setting.from.js');
@@ -84,16 +86,81 @@ function runQueue(setting, cwd, prepareResults) {
 			bannerQueueList(queue);
 			//done
 			bannerQueueDone();
-
-			//TODO: Continue
-			bannerDone();
+			//run build
+			runBuild(setting, cwd, prepareResults, queue);
 		})
 		.catch((err) => {
 			//log error
-			log.error(`An [ERROR] occurred when running run.queue command in peon. Message from error is '${err.message}'.`);
+			log.error(`An [ERROR] occurred when running $1 command in peon. Message from error is '${err.message}'.`, [
+				log.p.underline("run.queue")
+			]);
 			log.stacktrace(err);
 		});
 }
+
+/**
+ * Run build
+ * @param {PeonBuild.PeonSetting} setting
+ * @param {string} cwd
+ * @param {PeonBuild.PeonRc.Results.Prepare} prepareResults
+ * @param {Array.<PeonBuild.PeonRc.Results.QueueItem>} queue
+ */
+function runBuild(setting, cwd, prepareResults, queue) {
+	let p = promise.resolve();
+
+	/**
+	 * Error from module build
+	 * @param {Error} err
+	 */
+	function error(err) {
+		//log error
+		log.error(`An [ERROR] occurred when running $1 command in peon. Message from error is '${err.message}'.`, [
+			log.p.underline("run.module")
+		]);
+		log.stacktrace(err);
+	}
+
+	//create all
+	queue.forEach((queueItem) => {
+		p = p.then(() => runBuildModule(setting, cwd, prepareResults, queueItem)).catch(error);
+	});
+	//after done
+	p.then(() => {
+		//TODO: Continue
+		bannerDone();
+	});
+}
+
+/**
+ * Run build for module
+ * @param {PeonBuild.PeonSetting} setting
+ * @param {string} cwd
+ * @param {PeonBuild.PeonRc.Results.Prepare} prepareResults
+ * @param {PeonBuild.PeonRc.Results.QueueItem} queueItem
+ * @return {Promise}
+ */
+function runBuildModule(setting, cwd, prepareResults, queueItem) {
+	let stages = queueItem.stages,
+		p = promise.resolve();
+
+	//promise
+	return new promise(function (fulfill, reject){
+		//create all
+		stages.forEach((stage) => {
+			p = p.then(() => {
+				//TODO: Report previous
+				return core.run.module(cwd, queueItem, stage.name)
+			}).catch(reject);
+		});
+		//end
+		p.then(() => {
+			//TODO: Report previous
+			fulfill();
+		});
+	});
+}
+
+//Load config files
 
 /**
  * Load configs and validate

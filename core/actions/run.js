@@ -1,6 +1,7 @@
 const promise = global.Promise;
 
 const enums = require('../config/enum.js');
+const stageAction = require('./stage.js');
 
 /**
  * Process dependencies
@@ -10,8 +11,7 @@ const enums = require('../config/enum.js');
  * @return {Promise<Array.<PeonBuild.PeonRc.Results.QueueItem>>}
  */
 function processDependencies(cwd, prepare, stages) {
-	let i,
-		p = promise.resolve(),
+	let p = promise.resolve(),
 		dependencies = prepare.dependencies,
 		modules = dependencies.sorted.slice(0),
 		queue = /** @type {Array.<PeonBuild.PeonRc.Results.QueueItem>}*/[];
@@ -19,9 +19,9 @@ function processDependencies(cwd, prepare, stages) {
 	//promise
 	return new promise(function (fulfill, reject){
 		//create all
-		for (i = 0; i < modules.length; i++) {
+		dependencies.sorted.forEach(() => {
 			p = p.then(() => processDependency(cwd, queue, prepare, stages, modules)).catch(reject);
-		}
+		});
 		//end
 		p.then(() => {
 			fulfill(queue);
@@ -175,14 +175,20 @@ function queuePeonRc(cwd, prepare, stages) {
 /**
  * Run module peon rc
  * @param {string} cwd
- * @param {Array.<PeonBuild.PeonRc.Results.QueueItem>} queue
+ * @param {PeonBuild.PeonRc.Results.QueueItem} queueItem
  * @param {string} stage
- * @return {Promise<?>} //todo
+ * @return {Promise<PeonBuild.PeonRc.Results.ProcessedStage>}
  */
-function modulePeonRc(cwd, queue, stage) {
+function modulePeonRc(cwd, queueItem, stage) {
 	//promise
 	return new promise(function (fulfill, reject){
-		//TODO: Module process + promise return
+		let stagePromise,
+			runtimeStage = queueItem.stages.find((st) => st.name === stage);
+
+		//stage promise
+		stagePromise = /** @type {StageRunManipulator}*/stageAction(cwd, queueItem, runtimeStage);
+		stagePromise.then(fulfill);
+		stagePromise.catch(reject);
 	});
 }
 
