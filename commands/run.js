@@ -143,18 +143,35 @@ function runBuildModule(setting, cwd, prepareResults, queueItem) {
 	let stages = queueItem.stages,
 		p = promise.resolve();
 
+	//no stages
+	if (stages.length === 0) {
+		//TODO: Report no stages
+		return promise.resolve();
+	}
+
+	//banner build
+	bannerBuild(queueItem.configPath, queueItem.dependency.name);
+
 	//promise
-	return new promise(function (fulfill, reject){
+	return new promise(function (fulfill, reject) {
 		//create all
 		stages.forEach((stage) => {
 			p = p.then(() => {
 				//TODO: Report previous
+
+				//banner stage
+				bannerStage(stage);
+				//run stage
 				return core.run.module(cwd, queueItem, stage.name)
 			}).catch(reject);
 		});
 		//end
 		p.then(() => {
 			//TODO: Report previous
+
+			//build done
+			bannerBuildDone();
+			//done
 			fulfill();
 		});
 	});
@@ -171,7 +188,7 @@ function loadConfigsAndValidate(configResults) {
 	let configs = {};
 
 	//as array
-	Object.keys(configResults).forEach(function(key) {
+	Object.keys(configResults).forEach(function (key) {
 		let configResult = configResults[key];
 
 		//add valid config into list
@@ -318,6 +335,44 @@ function bannerQueueDone() {
 	log.timestamp(`Faze queue collect`, `Building queue is done.`);
 }
 
+/**
+ * Banner build
+ * @param {string} config
+ * @param {string} module
+ */
+function bannerBuild(config, module) {
+	//info
+	log.space();
+	log.title(`Run information: Faze $1 for $2 ...`, [
+		log.p.underline('build'),
+		log.p.underline(module)
+	]);
+	log.log(`Module config path is $1.`, [
+		log.p.path(config)
+	]);
+	log.timestamp(`Faze build`, `Build modules and stages.`);
+}
+
+/**
+ * Banner build done
+ */
+function bannerBuildDone() {
+	//time report
+	log.timestamp(`Faze build`, `Build is done.`);
+}
+
+/**
+ * Banner stage
+ * @param {PeonBuild.Peon.Tools.RuntimeStage} stage
+ */
+function bannerStage(stage) {
+	//info
+	log.quote(true, `Running stage $1 and processing $2 defined steps.`, [
+		log.p.underline(stage.name),
+		log.p.number(stage.steps.length)
+	]);
+}
+
 //#: Command
 
 /**
@@ -351,5 +406,6 @@ function commandRun(cwd, setting) {
 		});
 
 }
+
 //export
 module.exports = commandRun;
