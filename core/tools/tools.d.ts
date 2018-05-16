@@ -38,6 +38,7 @@ namespace PeonBuild.Peon {
 			type: string;
 			error?: Error;
 			warning?: Error;
+			info?: Array<Error>;
 		}
 
 		type IgnoreSettings = {

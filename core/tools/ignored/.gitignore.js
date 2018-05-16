@@ -13,6 +13,9 @@ const gitfolder = ".git";
 const warnings = {
 	"VCS_ROOT_NOT_EXISTS": `There is existing ${gitignore} file but there are no ${gitfolder} folder.`
 };
+const info = {
+	"VCS_ROOT_AS_MODULE": `There is ${gitfolder} file. Your git project is loaded as submodule.`
+};
 
 /**
  * Load files
@@ -57,7 +60,7 @@ function loadFile(file) {
 /**
  * Exists vcs
  * @param {string} file
- * @return {Promise<boolean>}
+ * @return {Promise<fs.Stats>}
  */
 function existsVcs(file) {
 	let directory = path.join(path.dirname(file), gitfolder);
@@ -65,7 +68,7 @@ function existsVcs(file) {
 	//promise
 	return new promise(function (fulfill){
 		fs.stat(directory, (err, stats) => {
-			fulfill(!err && stats && stats.isDirectory());
+			fulfill(!err && stats ? stats : null);
 		});
 	});
 }
@@ -105,15 +108,19 @@ function loadIgnored(file, ignored) {
 	//promise
 	return new promise(function (fulfill, reject) {
 		existsVcs(file)
-			.then((exists) => {
+			.then((stats) => {
 				//load files
 				loadFile(file)
 					.then((lines) => {
 						let ignoredFile = ignoredFileDef(file, processLines(lines));
 
-						//vcs not exists
-						if (!exists) {
+						//vcs not exists, event file even dir
+						if (!stats) {
 							ignoredFile.warning = new Error(warnings.VCS_ROOT_NOT_EXISTS);
+						}
+						//vcs as module
+						if (stats && stats.isFile()) {
+							ignoredFile.info.push(new Error(info.VCS_ROOT_AS_MODULE));
 						}
 						//add ignore file def
 						ignored.push(ignoredFile);
@@ -139,6 +146,7 @@ function ignoredFileDef(file, files) {
 	obj.file = file;
 	obj.ignored = files;
 	obj.type = gitfolder;
+	obj.info = [];
 
 	return obj;
 }

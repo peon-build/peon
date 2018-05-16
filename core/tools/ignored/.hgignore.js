@@ -77,7 +77,7 @@ function loadFile(file) {
 /**
  * Exists vcs
  * @param {string} file
- * @return {Promise<boolean>}
+ * @return {Promise<fs.Stats>}
  */
 function existsVcs(file) {
 	let directory = path.join(path.dirname(file), hgfolder);
@@ -85,7 +85,7 @@ function existsVcs(file) {
 	//promise
 	return new promise(function (fulfill){
 		fs.stat(directory, (err, stats) => {
-			fulfill(!err && stats && stats.isDirectory());
+			fulfill(!err && stats ? stats : null);
 		});
 	});
 }
@@ -158,7 +158,7 @@ function loadIgnored(file, ignored) {
 	//promise
 	return new promise(function (fulfill, reject) {
 		existsVcs(file)
-			.then((exists) => {
+			.then((stats) => {
 				//load files
 				loadFile(file)
 					.then((lines) => {
@@ -167,7 +167,7 @@ function loadIgnored(file, ignored) {
 						//process lines
 						processLines(ignoredFile, lines);
 						//vcs not exists
-						if (!exists) {
+						if (!stats || !stats.isDirectory()) {
 							// noinspection JSCheckFunctionSignatures
 							ignoredFile.warning = new Error(warnings.VCS_ROOT_NOT_EXISTS);
 						}
@@ -194,6 +194,7 @@ function ignoredFileDef(file) {
 	obj.file = file;
 	obj.ignored = [];
 	obj.type = hgfolder;
+	obj.info = [];
 
 	return obj;
 }

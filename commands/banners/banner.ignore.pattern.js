@@ -31,6 +31,12 @@ function bannerIgnorePattern(files, ignorePattern) {
 			log.error(`An [ERROR] occurred when in .ignore file. Message from error is '${file.error.message}'.`);
 			log.stacktrace(file.error);
 		}
+		//info
+		if (file.info && file.info.length) {
+			for (let i = 0; i < file.info.length; i++) {
+				log.debug(`An [DEBUG] occurred when in .ignore file. Message from info is '${file.info[i].message}'.`);
+			}
+		}
 	});
 }
 
