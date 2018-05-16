@@ -32,6 +32,17 @@ namespace PeonBuild.Peon {
 			original?: PeonBuild.PeonRc.Entry;
 		}
 
+		type Package = {
+			type: Array<PeonBuild.PeonRc.PackageType>;
+			files: Array<Files>;
+			error?: PackageError;
+		}
+
+		type PackageError = {
+			error?: Error;
+			original?: PeonBuild.PeonRc.Package;
+		}
+
 		type Ignore = {
 			file: string;
 			ignored: Array;

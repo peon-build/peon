@@ -6,11 +6,14 @@ module.exports = {
 	//output
 	output: "./build/",
 	//package
-	package: [
-		"./*.md",
-		"./package.json",
-		"./peon.cmd"
-	],
+	package: {
+		type: "zip",
+		files: [
+			"./*.md",
+			"./package.json",
+			"./peon.cmd"
+		]
+	},
 	//vendors
 	vendors: [],
 	//src

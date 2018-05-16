@@ -14,6 +14,12 @@ module.exports = {
 		build: "build",
 		pack: "pack",
 		deploy: "deploy"
+	},
+
+	/** @enum {PeonBuild.PeonRc.PackageType}*/
+	PackageType: {
+		zip: "zip",
+		npm: "npm"
 	}
 
 };

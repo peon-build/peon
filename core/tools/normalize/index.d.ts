@@ -8,6 +8,7 @@ namespace PeonBuild.Peon.Tools {
 		normalizePeonRcEntry(items: PeonBuild.PeonRc.Entry): Array<PeonBuild.Peon.Tools.Entry>;
 		normalizePeonRcStages(items: Array<PeonBuild.PeonRc.Stage>): Array<PeonBuild.Peon.Tools.Stage>;
 		normalizePeonRcSteps(items: Array<PeonBuild.PeonRc.Step>): Array<PeonBuild.Peon.Tools.Step>;
+		normalizePeonRcPackages(items: PeonBuild.PeonRc.Package): Array<PeonBuild.Peon.Tools.Package>;
 	}
 
 }

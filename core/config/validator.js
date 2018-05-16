@@ -43,6 +43,15 @@ function normalizeStages(stages) {
 }
 
 /**
+ * Normalize package
+ * @param {PeonBuild.PeonRc.Package} pkg
+ * @return {Array<PeonBuild.Peon.Tools.Package>}
+ */
+function normalizePackage(pkg) {
+	return  /** @type {Array.<PeonBuild.Peon.Tools.Package>}*/norm.normalizePeonRcPackages(pkg);
+}
+
+/**
  * Create config error
  * @param {Error} err
  * @param {Array.<*>=} args
@@ -100,6 +109,34 @@ function addEntryError(configResult, entry, prop) {
 			error = /** @type {PeonBuild.Peon.Tools.EntryError}*/entry.error;
 
 		//add entry error
+		if (error) {
+			stringifyPromise = /** @type {Promise}*/stringify(error.original);
+			stringifyPromise
+				.then((lines) => {
+					addConfigError(configResult, error.error, prop, lines);
+					fulfill();
+				})
+				.catch(reject);
+			return;
+		}
+		//ok
+		fulfill();
+	});
+}
+
+/**
+ * Add package error
+ * @param {PeonBuild.PeonRc.ConfigResult} configResult
+ * @param {PeonBuild.Peon.Tools.Package} pckg
+ * @param {string} prop
+ * @return {Promise}
+ */
+function addPackageError(configResult, pckg, prop) {
+	return new promise(function (fulfill, reject) {
+		let stringifyPromise,
+			error = /** @type {PeonBuild.Peon.Tools.PackageError}*/pckg.error;
+
+		//add pckg error
 		if (error) {
 			stringifyPromise = /** @type {Promise}*/stringify(error.original);
 			stringifyPromise
@@ -276,10 +313,17 @@ function validatePackage(configResult) {
 			return;
 		}
 
-		let files = normalizeFile(config.package);
+		let packages = normalizePackage(config.package);
 
-		files.forEach((file) => {
-			errorsList.push(addFileError(configResult, file, "package"));
+		packages.forEach((pckg) => {
+			//iterate all error files
+			pckg.files.forEach((file) => {
+				errorsList.push(addFileError(configResult, file, "package.files"));
+			});
+			//add package error
+			if (pckg.error) {
+				errorsList.push(addPackageError(configResult, pckg, "package"));
+			}
 		});
 
 		promise.all(errorsList)

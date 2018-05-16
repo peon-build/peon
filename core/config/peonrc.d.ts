@@ -7,7 +7,7 @@ namespace PeonBuild.PeonRc {
 
 		output?: File;
 		vendors?: File;
-		package?: File;
+		package?: Package;
 
 		src?: Sources;
 		entry?: Entry;
@@ -38,6 +38,15 @@ namespace PeonBuild.PeonRc {
 	type Dependency = {
 		module: string;
 		version: string;
+	}
+
+	//Package
+
+    type Package = PackageDef | Array<PackageDef>;
+
+	type PackageDef = {
+		type: PackageType | Array<PackageType>;
+		files: File;
 	}
 
 	//Steps
@@ -89,6 +98,11 @@ namespace PeonBuild.PeonRc {
 		pack = "pack",
 		deploy = "deploy"
 	}
+
+    enum PackageType {
+        zip = "zip",
+		npm = "npm"
+    }
 
 	enum LibraryTargetType {
 		commonjs2 = "commonjs2",

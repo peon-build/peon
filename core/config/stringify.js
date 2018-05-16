@@ -9,13 +9,23 @@ const ret = "return ";
  * @return {string}
  */
 function stringifyObject(object) {
-	let keys = Object.keys(object),
-		evaluated,
+	let evaluated,
 		string = "",
 		value,
+		keys,
 		key,
 		i;
 
+	//null or undefined
+	if (object === null) {
+		return "null";
+	}
+	if (object === undefined) {
+		return "undefined";
+	}
+
+	//get keys
+	keys = Object.keys(object);
 	//number or boolean
 	if (typeof object === "number" || typeof object === "boolean") {
 		return stringifyAnything("", object);
